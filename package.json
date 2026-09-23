@@ -22,6 +22,8 @@
     "react-hook-form": "^7.88.0",
     "react-i18next": "^17.0.15",
     "react-native": "0.86.3",
+    "react-native-keyboard-controller": "1.21.9",
+    "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-svg": "15.15.4",
     "react-native-web": "^0.21.2",
@@ -38,9 +40,9 @@
   },
   "scripts": {
     "start": "expo start",
-    "start:device": "expo start --tunnel --clear --port 8082",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start:device": "expo start --dev-client --localhost --clear --port 8082",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."

@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Animated, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 
 import { useTheme } from '../../theme';
@@ -9,7 +9,7 @@ import { useTheme } from '../../theme';
  */
 export function useScrollResponsiveBottomAction() {
   const theme = useTheme();
-  const translateY = useRef(new Animated.Value(0)).current;
+  const [translateY] = useState(() => new Animated.Value(0));
   const lastOffset = useRef(0);
   const isVisible = useRef(true);
 
