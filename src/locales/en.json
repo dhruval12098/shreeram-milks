@@ -1,0 +1,7 @@
+{
+  "common": { "appName": "ShreeRam Milks", "foundationReady": "Application foundation ready" },
+  "errors": {
+    "NETWORK_ERROR": "Please check your internet connection and try again.",
+    "UNKNOWN_ERROR": "Something went wrong. Please try again."
+  }
+}

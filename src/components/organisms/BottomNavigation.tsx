@@ -1,0 +1,9 @@
+import type { IconSvgElement } from '../atoms/AppIcon';
+import { Pressable, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AppIcon } from '../atoms/AppIcon';
+import { ThemedText } from '../atoms/ThemedText';
+import { useTheme } from '../../theme';
+export interface BottomNavigationItem { icon: IconSvgElement; key: string; label: string; }
+interface BottomNavigationProps { activeKey: string; items: BottomNavigationItem[]; onChange: (key: string) => void; }
+export function BottomNavigation({ activeKey, items, onChange }: BottomNavigationProps) { const theme = useTheme(); const insets = useSafeAreaInsets(); return <View accessibilityRole="tablist" style={{ flexDirection: 'row', overflow: 'hidden', borderTopLeftRadius: theme.radii.lg, borderTopRightRadius: theme.radii.lg, paddingTop: theme.spacing.sm, paddingBottom: Math.max(insets.bottom, theme.spacing.sm), backgroundColor: theme.colors.colorNavigation }}>{items.map((item) => { const active = item.key === activeKey; return <Pressable key={item.key} accessibilityRole="tab" accessibilityState={{ selected: active }} accessibilityLabel={item.label} onPress={() => onChange(item.key)} style={{ flex: 1, minHeight: theme.sizes.buttonHeight + theme.spacing.sm, alignItems: 'center', justifyContent: 'center', gap: theme.spacing.xs }}><AppIcon icon={item.icon} accessibilityLabel="" size="md" tone="onPrimary" /><ThemedText variant="caption" weight={active ? 'semibold' : 'regular'} style={{ color: theme.colors.colorTextInverse, fontSize: 10, lineHeight: 12, opacity: active ? 1 : 0.7 }}>{item.label}</ThemedText><View style={{ height: theme.borderWidths.medium, width: active ? theme.spacing.md : 0, borderRadius: theme.radii.pill, backgroundColor: theme.colors.colorTextInverse }} /></Pressable>; })}</View>; }
