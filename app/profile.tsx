@@ -21,7 +21,6 @@ import {
   ProfileIcon,
   SettingsIcon,
   ShieldIcon,
-  WalletIcon,
 } from "../src/icons/appIcons";
 import { useTheme } from "../src/theme";
 
@@ -131,12 +130,7 @@ export default function ProfileScreen() {
               <ThemedText variant="body" weight="bold">
                 {t("profile.customerName")}
               </ThemedText>
-              <AppIcon
-                icon={EditIcon}
-                accessibilityLabel={t("profile.editProfile")}
-                size="sm"
-                tone="secondary"
-              />
+              <Pressable accessibilityRole="button" accessibilityLabel={t("profile.editProfile")} hitSlop={theme.spacing.sm} onPress={() => router.push("/edit-profile")} style={{ width: theme.layout.touchTargetMin, height: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center" }}><AppIcon icon={EditIcon} accessibilityLabel="" size="sm" tone="secondary" /></Pressable>
             </View>
             <ThemedText
               variant="bodySmall"
@@ -159,57 +153,6 @@ export default function ProfileScreen() {
               style={{ color: theme.colors.colorPrimary }}
             >
               {t("profile.member")}
-            </ThemedText>
-          </View>
-        </View>
-        <View
-          style={{
-            padding: theme.spacing.md,
-            flexDirection: "row",
-            alignItems: "center",
-            gap: theme.spacing.sm,
-            borderRadius: theme.radii.lg,
-            borderWidth: theme.borderWidths.hairline,
-            borderColor: theme.colors.colorBorder,
-            backgroundColor: theme.colors.colorSurface,
-          }}
-        >
-          <View
-            style={{
-              width: theme.sizes.avatarMd,
-              height: theme.sizes.avatarMd,
-              borderRadius: theme.radii.md,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: theme.colors.colorSurfaceMuted,
-            }}
-          >
-            <AppIcon icon={WalletIcon} accessibilityLabel="" size="sm" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <ThemedText
-              variant="caption"
-              weight="semibold"
-              style={{ color: theme.colors.colorTextSecondary }}
-            >
-              {t("profile.wallet")}
-            </ThemedText>
-            <ThemedText variant="h2">{t("profile.walletBalance")}</ThemedText>
-          </View>
-          <View
-            style={{
-              paddingHorizontal: theme.spacing.md,
-              paddingVertical: theme.spacing.sm,
-              borderRadius: theme.radii.pill,
-              backgroundColor: theme.colors.colorPrimary,
-            }}
-          >
-            <ThemedText
-              variant="bodySmall"
-              weight="semibold"
-              style={{ color: theme.colors.colorTextInverse }}
-            >
-              {t("profile.addMoney")}
             </ThemedText>
           </View>
         </View>

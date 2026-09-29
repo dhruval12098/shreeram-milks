@@ -24,6 +24,43 @@ export interface DemoUser {
   name: string;
 }
 
+export type AddressType = "home" | "work" | "other";
+
+export interface DeliveryAddress {
+  addressType: AddressType;
+  city: string;
+  fullName: string;
+  id: string;
+  isDefault: boolean;
+  isServiceable: boolean;
+  landmark: string;
+  line1: string;
+  line2: string;
+  phone: string;
+  pincode: string;
+}
+
+export interface DoorstepInstructions {
+  additionalInstructions: string;
+  dropLocation: "front-door" | "side-gate" | "milk-box" | "security-desk";
+  handoff: "hand-to-me" | "leave-at-door" | "milk-box" | "security";
+  noCall: boolean;
+  noDoorbell: boolean;
+  notifyAfterDelivery: boolean;
+}
+
+export type DeliveryState = "scheduled" | "delivered" | "paused" | "skipped";
+
+export interface DeliveryCalendarEntry {
+  addressLabel: string;
+  date: string;
+  id: string;
+  productName: string;
+  quantity: string;
+  state: DeliveryState;
+  timeSlot: string;
+}
+
 export type OrderStatus = "out-for-delivery" | "delivered";
 
 export interface OrderItem {

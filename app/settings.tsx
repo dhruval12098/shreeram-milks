@@ -151,12 +151,7 @@ export default function SettingsScreen() {
               {t("settings.memberDetail")}
             </ThemedText>
           </View>
-          <AppIcon
-            icon={EditIcon}
-            accessibilityLabel={t("profile.editProfile")}
-            tone="secondary"
-            size="sm"
-          />
+          <Pressable accessibilityRole="button" accessibilityLabel={t("profile.editProfile")} hitSlop={theme.spacing.sm} onPress={() => router.push("/edit-profile")} style={{ width: theme.layout.touchTargetMin, height: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center" }}><AppIcon icon={EditIcon} accessibilityLabel="" tone="secondary" size="sm" /></Pressable>
         </View>
         <SettingsGroup title={t("settings.alertsSection")}>
           <SettingsToggleRow
@@ -205,27 +200,12 @@ export default function SettingsScreen() {
         </SettingsGroup>
         <SettingsGroup title={t("settings.accountSection")}>
           <AccountMenuRow
-            icon={DownloadIcon}
-            subtitle={t("settings.passbookSubtitle")}
-            title={t("settings.passbook")}
-          />
-          <AccountMenuRow
-            icon={CalendarIcon}
-            subtitle={t("settings.farmVisitSubtitle")}
-            title={t("settings.farmVisit")}
-            trailing={t("settings.book")}
-          />
-          <AccountMenuRow
             icon={LanguageIcon}
             subtitle={t("settings.languageSubtitle")}
             title={t("settings.language")}
             trailing={t("settings.english")}
-          />
-          <AccountMenuRow
-            icon={ShieldIcon}
             isLast
-            subtitle={t("settings.reportsSubtitle")}
-            title={t("settings.reports")}
+            onPress={() => router.push("/language")}
           />
         </SettingsGroup>
         <View

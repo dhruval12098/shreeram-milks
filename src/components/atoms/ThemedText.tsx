@@ -4,7 +4,7 @@ import { Text, type TextProps } from 'react-native';
 
 import { fontFamilyForLocale, type FontWeightName, useTheme } from '../../theme';
 
-type TextVariant = 'h1' | 'h2' | 'body' | 'bodySmall' | 'caption';
+type TextVariant = 'h1' | 'h2' | 'body' | 'bodySmall' | 'caption' | 'overline' | 'badgeLabel';
 
 interface ThemedTextProps extends TextProps {
   weight?: FontWeightName;
@@ -17,6 +17,8 @@ const fontWeightByVariant: Record<TextVariant, FontWeightName> = {
   body: 'regular',
   bodySmall: 'regular',
   caption: 'medium',
+  overline: 'semibold',
+  badgeLabel: 'semibold',
 };
 
 export function ThemedText({ children, style, variant = 'body', weight, ...props }: PropsWithChildren<ThemedTextProps>) {

@@ -1,28 +1,21 @@
-import { CalendarIcon, ShieldIcon } from "../src/icons/appIcons";
-import { ProfileDetailScreen } from "../src/components/organisms/ProfileDetailScreen";
+import { router } from "expo-router";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Pressable, ScrollView, StatusBar, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Button } from "../src/components/atoms/Button";
+import { ThemedText } from "../src/components/atoms/ThemedText";
+import { ScreenHeader } from "../src/components/molecules/ScreenHeader";
+import { StateMessage } from "../src/components/organisms/StateMessage";
+import { CalendarIcon } from "../src/icons/appIcons";
+import { useDeliveryCalendar } from "../src/hooks/useDeliveryCalendar";
+import { useTheme } from "../src/theme";
+import type { DeliveryState } from "../src/types/models";
 
 export default function DeliveryCalendarScreen() {
-  return (
-    <ProfileDetailScreen
-      title="Delivery Calendar & Holds"
-      subtitle="Review upcoming deliveries or manage a planned pause."
-      rows={[
-        {
-          icon: CalendarIcon,
-          title: "Tomorrow, 25 Oct",
-          detail: "A2 Gir Cow Milk · Morning 5:00 – 7:00 AM",
-        },
-        {
-          icon: CalendarIcon,
-          title: "Friday, 26 Oct",
-          detail: "Organic Set Curd · Morning 5:00 – 7:00 AM",
-        },
-        {
-          icon: ShieldIcon,
-          title: "Set a vacation hold",
-          detail: "Pause selected subscriptions while you are away",
-        },
-      ]}
-    />
-  );
+  const theme = useTheme(); const { t } = useTranslation(); const { data: deliveries = [], isError, isLoading } = useDeliveryCalendar(); const [monthOffset, setMonthOffset] = useState(0); const [selectedDay, setSelectedDay] = useState(8); const [stateOverrides, setStateOverrides] = useState<Record<string, DeliveryState>>({}); const selectedEntry = deliveries.find((delivery) => Number(delivery.date.slice(-2)) === selectedDay); const selected = selectedEntry ? { ...selectedEntry, state: stateOverrides[selectedEntry.id] ?? selectedEntry.state } : undefined; const dates = Array.from({ length: 30 }, (_, index) => { const entry = deliveries.find((delivery) => Number(delivery.date.slice(-2)) === index + 1); return { day: index + 1, state: entry ? stateOverrides[entry.id] ?? entry.state : undefined }; }); const month = new Date(2026, 8 + monthOffset, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  const colorFor = (state?: DeliveryState) => state === "scheduled" ? theme.colors.colorPrimary : state === "delivered" ? theme.colors.colorInfo : state === "paused" ? theme.colors.colorWarning : state === "skipped" ? theme.colors.colorDanger : theme.colors.colorSurface;
+  const weekdays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+  if (isLoading || isError) return <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}><StateMessage type={isError ? "error" : "loading"} title={t(isError ? "errors.UNKNOWN_ERROR" : "calendar.title")} description={isError ? t("errors.UNKNOWN_ERROR") : undefined} /></SafeAreaView>;
+  return <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}><StatusBar barStyle="dark-content" /><View style={{ flex: 1, paddingHorizontal: theme.layout.screenHorizontalPadding }}><ScreenHeader backLabel={t("commonActions.back")} title={t("calendar.title")} /><ScrollView contentContainerStyle={{ gap: theme.spacing.md, paddingVertical: theme.spacing.md, paddingBottom: theme.spacing.xxl }}><ThemedText variant="bodySmall" style={{ color: theme.colors.colorTextSecondary }}>{t("calendar.subtitle")}</ThemedText><View style={{ padding: theme.spacing.md, gap: theme.spacing.md, borderRadius: theme.radii.lg, backgroundColor: theme.colors.colorSurface }}><View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}><Pressable accessibilityRole="button" accessibilityLabel={t("calendar.previous")} onPress={() => setMonthOffset((value) => value - 1)} style={{ width: theme.layout.touchTargetMin, height: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center" }}><ThemedText variant="h2">‹</ThemedText></Pressable><ThemedText variant="body" weight="semibold">{month}</ThemedText><Pressable accessibilityRole="button" accessibilityLabel={t("calendar.next")} onPress={() => setMonthOffset((value) => value + 1)} style={{ width: theme.layout.touchTargetMin, height: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center" }}><ThemedText variant="h2">›</ThemedText></Pressable></View><View style={{ flexDirection: "row" }}>{weekdays.map((day) => <ThemedText key={day} variant="caption" style={{ flex: 1, textAlign: "center", color: theme.colors.colorTextSecondary }}>{t(`calendar.${day}`)}</ThemedText>)}</View><View style={{ flexDirection: "row", flexWrap: "wrap" }}>{dates.map((date) => { const selectedDate = date.day === selectedDay; return <Pressable key={date.day} accessibilityRole="button" accessibilityState={{ selected: selectedDate }} onPress={() => setSelectedDay(date.day)} style={{ width: "14.285%", height: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center" }}><View style={{ width: theme.sizes.avatarSm, height: theme.sizes.avatarSm, borderRadius: theme.radii.pill, alignItems: "center", justifyContent: "center", borderWidth: selectedDate ? theme.borderWidths.medium : theme.borderWidths.none, borderColor: theme.colors.colorPrimary, backgroundColor: colorFor(date.state) }}><ThemedText variant="caption" weight="semibold" style={{ color: date.state ? theme.colors.colorTextInverse : theme.colors.colorTextPrimary }}>{date.day}</ThemedText></View></Pressable>; })}</View><View style={{ flexDirection: "row", flexWrap: "wrap", gap: theme.spacing.sm }}>{(["scheduled", "delivered", "paused", "skipped"] as DeliveryState[]).map((state) => <View key={state} style={{ flexDirection: "row", gap: theme.spacing.xs, alignItems: "center" }}><View style={{ width: theme.spacing.sm, height: theme.spacing.sm, borderRadius: theme.radii.pill, backgroundColor: colorFor(state) }} /><ThemedText variant="caption">{t(`calendar.${state}`)}</ThemedText></View>)}</View></View>{selected?.state ? <View style={{ gap: theme.spacing.sm, padding: theme.spacing.md, borderRadius: theme.radii.lg, backgroundColor: theme.colors.colorSurfaceMuted }}><ThemedText variant="overline" style={{ color: theme.colors.colorTextSecondary }}>{t("calendar.selected")}</ThemedText><ThemedText variant="body" weight="semibold">{selected.productName} · {selected.quantity}</ThemedText><ThemedText variant="bodySmall" style={{ color: theme.colors.colorTextSecondary }}>{selected.timeSlot} · {selected.addressLabel}</ThemedText><ThemedText variant="caption" weight="semibold" style={{ color: theme.colors.colorPrimary }}>{t(`calendar.${selected.state}`)}</ThemedText>{selected.state === "scheduled" ? <View style={{ flexDirection: "row", gap: theme.spacing.sm }}><Button style={{ flex: 1 }} variant="secondary" onPress={() => selectedEntry && setStateOverrides((current) => ({ ...current, [selectedEntry.id]: "skipped" }))}>{t("calendar.skip")}</Button><Button style={{ flex: 1 }} onPress={() => router.push("/subscription-vacation")}>{t("calendar.pause")}</Button></View> : <Button variant="secondary" onPress={() => router.push("/subscription-manage")}>{t("calendar.manage")}</Button>}</View> : <StateMessage type="empty" icon={CalendarIcon} title={t("calendar.noDelivery")} description={t("calendar.noDeliveryDetail")} actionLabel={t("calendar.manage")} onAction={() => router.push("/subscription-manage")} />}</ScrollView></View></SafeAreaView>;
 }

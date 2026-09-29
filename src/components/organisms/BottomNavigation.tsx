@@ -74,8 +74,9 @@ export function BottomNavigation({
                     position: "absolute",
                     top: -theme.spacing.sm,
                     right: -theme.spacing.xs,
-                    width: theme.sizes.iconSm + theme.spacing.xs,
-                    height: theme.sizes.iconSm + theme.spacing.xs,
+                    minWidth: theme.sizes.iconSm,
+                    height: theme.sizes.iconSm,
+                    paddingHorizontal: cartCount > 9 ? theme.spacing.xs : theme.spacing.none,
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: theme.radii.pill,
@@ -85,22 +86,20 @@ export function BottomNavigation({
                   }}
                 >
                   <ThemedText
-                    variant="caption"
+                    variant="badgeLabel"
                     weight="semibold"
                     style={{ color: theme.colors.colorTextPrimary }}
                   >
-                    {cartCount > 9 ? "9+" : cartCount}
+                    {cartCount > 99 ? "99+" : cartCount}
                   </ThemedText>
                 </View>
               ) : null}
             </View>
             <ThemedText
-              variant="caption"
+              variant="badgeLabel"
               weight={active ? "semibold" : "regular"}
               style={{
                 color: theme.colors.colorTextInverse,
-                fontSize: 10,
-                lineHeight: 12,
                 opacity: active ? 1 : 0.7,
               }}
             >

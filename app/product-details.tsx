@@ -459,7 +459,7 @@ function SubscriptionOptions() {
               }}
             >
               <ThemedText
-                variant="caption"
+                variant="badgeLabel"
                 weight="semibold"
                 style={{ color: theme.colors.colorTextInverse }}
               >
@@ -660,11 +660,7 @@ function PlanOption({
               <ThemedText
                 variant="caption"
                 weight="semibold"
-                style={{
-                  color: theme.colors.colorTextInverse,
-                  fontSize: theme.typography.caption.fontSize * 0.6,
-                  lineHeight: theme.typography.caption.lineHeight * 0.6,
-                }}
+                style={{ color: theme.colors.colorTextInverse }}
               >
                 {badge}
               </ThemedText>
