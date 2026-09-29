@@ -1,5 +1,49 @@
-import { View } from 'react-native';
-import { ThemedText } from './ThemedText';
-import { useTheme } from '../../theme';
-type AvatarSize = 'sm' | 'md' | 'lg';
-export function Avatar({ initials, size = 'md' }: { initials: string; size?: AvatarSize }) { const theme = useTheme(); const dimension = size === 'sm' ? theme.sizes.avatarSm : size === 'lg' ? theme.sizes.avatarLg : theme.sizes.avatarMd; return <View accessibilityLabel={initials} style={{ width: dimension, height: dimension, borderRadius: theme.radii.pill, backgroundColor: theme.colors.colorPrimaryTint, alignItems: 'center', justifyContent: 'center' }}><ThemedText variant="caption" style={{ color: theme.colors.colorPrimary }}>{initials}</ThemedText></View>; }
+import { Image } from "expo-image";
+import { View } from "react-native";
+import { ThemedText } from "./ThemedText";
+import { useTheme } from "../../theme";
+type AvatarSize = "sm" | "md" | "lg";
+
+interface AvatarProps {
+  imageUrl?: string;
+  initials: string;
+  size?: AvatarSize;
+}
+
+export function Avatar({ imageUrl, initials, size = "md" }: AvatarProps) {
+  const theme = useTheme();
+  const dimension =
+    size === "sm"
+      ? theme.sizes.avatarSm
+      : size === "lg"
+        ? theme.sizes.avatarLg
+        : theme.sizes.avatarMd;
+  const containerStyle = {
+    width: dimension,
+    height: dimension,
+    borderRadius: theme.radii.pill,
+    backgroundColor: theme.colors.colorPrimaryTint,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+    overflow: "hidden" as const,
+  };
+  return (
+    <View accessibilityLabel={initials} style={containerStyle}>
+      {imageUrl ? (
+        <Image
+          accessibilityLabel={initials}
+          contentFit="cover"
+          source={{ uri: imageUrl }}
+          style={{ width: "100%", height: "100%" }}
+        />
+      ) : (
+        <ThemedText
+          variant="caption"
+          style={{ color: theme.colors.colorPrimary }}
+        >
+          {initials}
+        </ThemedText>
+      )}
+    </View>
+  );
+}

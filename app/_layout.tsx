@@ -17,5 +17,5 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
   if (fontError) throw fontError;
 
-  return <AppProviders><Stack screenOptions={{ headerShown: false }} /></AppProviders>;
+  return <AppProviders><Stack screenOptions={{ headerShown: false, animation: 'fade', animationDuration: 220 }} /></AppProviders>;
 }
