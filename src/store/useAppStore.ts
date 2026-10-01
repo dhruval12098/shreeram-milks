@@ -8,6 +8,13 @@ export interface CartItem {
   quantity: number;
 }
 
+export type CheckoutDeliverySlot = 'early' | 'standard';
+
+interface CheckoutSelection {
+  addressId: string | null;
+  deliverySlot: CheckoutDeliverySlot;
+}
+
 interface AppState {
   language: AppLanguage;
   setLanguage: (language: AppLanguage) => void;
@@ -16,6 +23,9 @@ interface AppState {
   updateCartQuantity: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
+  checkoutSelection: CheckoutSelection;
+  setCheckoutAddress: (addressId: string) => void;
+  setCheckoutDeliverySlot: (deliverySlot: CheckoutDeliverySlot) => void;
   addresses: DeliveryAddress[];
   addAddress: (address: Omit<DeliveryAddress, 'id'>) => void;
   updateAddress: (address: DeliveryAddress) => void;
@@ -41,6 +51,13 @@ export const useAppStore = create<AppState>((set) => ({
   updateCartQuantity: (productId, quantity) => set((state) => ({ cart: quantity <= 0 ? state.cart.filter((item) => item.product.id !== productId) : state.cart.map((item) => item.product.id === productId ? { ...item, quantity } : item) })),
   removeFromCart: (productId) => set((state) => ({ cart: state.cart.filter((item) => item.product.id !== productId) })),
   clearCart: () => set({ cart: [] }),
+  checkoutSelection: { addressId: 'address-home', deliverySlot: 'early' },
+  setCheckoutAddress: (addressId) => set((state) => ({
+    checkoutSelection: { ...state.checkoutSelection, addressId },
+  })),
+  setCheckoutDeliverySlot: (deliverySlot) => set((state) => ({
+    checkoutSelection: { ...state.checkoutSelection, deliverySlot },
+  })),
   addresses: [
     { id: 'address-home', addressType: 'home', isDefault: true, isServiceable: true, fullName: 'Priya Sharma', phone: '9820144521', line1: 'Flat 402, Greenfield Apartments', line2: 'Near Satara Market', landmark: 'Opposite City Library', pincode: '415001', city: 'Satara' },
     { id: 'address-work', addressType: 'work', isDefault: false, isServiceable: false, fullName: 'Priya Sharma', phone: '9820144521', line1: 'Gausala Hub', line2: 'Karad Road', landmark: '', pincode: '415110', city: 'Satara' },

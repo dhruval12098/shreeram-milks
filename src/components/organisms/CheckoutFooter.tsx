@@ -1,4 +1,5 @@
 import { View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Button } from "../atoms/Button";
 import { ThemedText } from "../atoms/ThemedText";
 import { useTheme } from "../../theme";
@@ -13,6 +14,7 @@ export function CheckoutFooter({
   onPress,
 }: CheckoutFooterProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
   return (
     <View
       style={[
@@ -34,7 +36,7 @@ export function CheckoutFooter({
           variant="caption"
           style={{ color: theme.colors.colorTextSecondary }}
         >
-          Includes taxes and delivery
+          {t("checkout.footer.inclusive")}
         </ThemedText>
       </View>
       <Button style={{ flex: 1 }} onPress={onPress}>

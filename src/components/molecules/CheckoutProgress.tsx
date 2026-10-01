@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppIcon } from "../atoms/AppIcon";
 import { ThemedText } from "../atoms/ThemedText";
@@ -9,11 +10,16 @@ interface CheckoutProgressProps {
   step: 1 | 2 | 3;
   title: string;
 }
-const labels = ["Address", "Review", "Payment"];
 export function CheckoutProgress({ step, title }: CheckoutProgressProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
+  const labels = [
+    t("checkout.progress.address"),
+    t("checkout.progress.review"),
+    t("checkout.progress.payment"),
+  ];
   return (
-    <View style={{ gap: theme.spacing.md }}>
+    <View style={{ gap: theme.spacing.sm }}>
       <View
         style={{
           minHeight: theme.sizes.buttonHeight,
@@ -40,14 +46,23 @@ export function CheckoutProgress({ step, title }: CheckoutProgressProps) {
           {title}
         </ThemedText>
       </View>
-      <View
-        style={{
-          gap: theme.spacing.xs,
-          padding: theme.spacing.md,
-          borderRadius: theme.radii.md,
-          backgroundColor: theme.colors.colorSurfaceMuted,
-        }}
-      >
+      <View style={{ gap: theme.spacing.sm }}>
+        <View style={{ flexDirection: "row", gap: theme.spacing.xs }}>
+          {labels.map((label, index) => (
+            <View
+              key={label}
+              style={{
+                flex: 1,
+                height: theme.borderWidths.medium,
+                borderRadius: theme.radii.pill,
+                backgroundColor:
+                  index + 1 <= step
+                    ? theme.colors.colorPrimary
+                    : theme.colors.colorBorder,
+              }}
+            />
+          ))}
+        </View>
         <View
           style={{
             flexDirection: "row",
@@ -73,17 +88,8 @@ export function CheckoutProgress({ step, title }: CheckoutProgressProps) {
                       : theme.colors.colorBorder,
                 }}
               >
-                <ThemedText
-                  variant="caption"
-                  weight="bold"
-                  style={{
-                    color:
-                      index + 1 <= step
-                        ? theme.colors.colorTextInverse
-                        : theme.colors.colorTextSecondary,
-                  }}
-                >
-                  {index + 1}
+                <ThemedText variant="caption" weight="bold" style={{ color: index + 1 <= step ? theme.colors.colorTextInverse : theme.colors.colorTextSecondary }}>
+                  {index + 1 < step ? "✓" : index + 1}
                 </ThemedText>
               </View>
               <ThemedText
