@@ -1,8 +1,8 @@
 import type { PropsWithChildren } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Animated,
-  Easing,
   Modal,
   Pressable,
   useWindowDimensions,
@@ -25,58 +25,48 @@ export function SubscriptionBottomSheet({
   visible,
 }: PropsWithChildren<SubscriptionBottomSheetProps>) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { height } = useWindowDimensions();
-  const translateY = useRef(new Animated.Value(height)).current;
-  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const [translateY] = useState(() => new Animated.Value(height));
+  const [mounted, setMounted] = useState(visible);
+  const animateTo = (toValue: number, onComplete?: () => void) => Animated.spring(translateY, {
+    toValue,
+    damping: 24,
+    stiffness: 190,
+    mass: 0.9,
+    overshootClamping: true,
+    useNativeDriver: true,
+  }).start(({ finished }) => { if (finished) onComplete?.(); });
+
   useEffect(() => {
     if (visible) {
+      setMounted(true);
       translateY.setValue(height);
-      overlayOpacity.setValue(0);
-      Animated.timing(overlayOpacity, {
-        toValue: theme.opacity.overlay,
-        duration: theme.motion.duration.normal,
-        useNativeDriver: true,
-      }).start();
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: theme.motion.duration.normal,
-        easing: Easing.bezier(...theme.motion.easing.decelerate),
-        useNativeDriver: true,
-      }).start();
+      animateTo(0);
+    } else if (mounted) {
+      animateTo(height, () => setMounted(false));
     }
   }, [
     height,
-    theme.motion.duration.normal,
-    theme.motion.easing.decelerate,
-    overlayOpacity,
+    mounted,
     translateY,
     visible,
   ]);
+
+  const close = () => animateTo(height, onClose);
   return (
     <Modal
       animationType="none"
       transparent
-      visible={visible}
-      onRequestClose={onClose}
+      visible={mounted}
+      onRequestClose={close}
     >
       <View style={{ flex: 1, justifyContent: "flex-end" }}>
         <KeyboardAwareBottomDrawer>
-          <Animated.View
-            pointerEvents="none"
-            style={{
-              position: "absolute",
-              top: theme.spacing.none,
-              right: theme.spacing.none,
-              bottom: theme.spacing.none,
-              left: theme.spacing.none,
-              backgroundColor: theme.colors.colorOverlay,
-              opacity: overlayOpacity,
-            }}
-          />
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Close drawer"
-            onPress={onClose}
+            accessibilityLabel={t("bottomSheet.closeDrawer")}
+            onPress={close}
             style={{
               flex: 1,
             }}
@@ -107,8 +97,8 @@ export function SubscriptionBottomSheet({
             />
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Close"
-              onPress={onClose}
+              accessibilityLabel={t("bottomSheet.close")}
+              onPress={close}
               style={{
                 position: "absolute",
                 top: theme.spacing.md,

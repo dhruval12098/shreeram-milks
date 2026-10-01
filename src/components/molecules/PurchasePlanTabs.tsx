@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useState } from "react";
 import { Animated, Easing, Pressable, View } from "react-native";
 import { useTranslation } from "react-i18next";
 
@@ -10,9 +10,9 @@ interface PurchasePlanTabsProps { onChange: (plan: PurchasePlan) => void; value:
 const plans: { key: PurchasePlan; labelKey: string }[] = [{ key: "single", labelKey: "purchasePlans.single" }, { key: "trial", labelKey: "purchasePlans.trial" }, { key: "subscription", labelKey: "purchasePlans.subscription" }];
 
 function PlanTab({ labelKey, onPress, selected }: { labelKey: string; onPress: () => void; selected: boolean }) {
-  const theme = useTheme(); const { t } = useTranslation(); const scale = useRef(new Animated.Value(1)).current;
+  const theme = useTheme(); const { t } = useTranslation(); const [scale] = useState(() => new Animated.Value(1));
   const animateScale = (toValue: number) => Animated.timing(scale, { toValue, duration: theme.motion.duration.fast, easing: Easing.bezier(...theme.motion.easing.standard), useNativeDriver: true }).start();
-  return <Animated.View style={{ flex: 1, transform: [{ scale }] }}><Pressable accessibilityRole="tab" accessibilityState={{ selected }} onPress={onPress} onPressIn={() => animateScale(theme.motion.pressScale.control)} onPressOut={() => animateScale(1)} style={({ pressed }) => ({ minHeight: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center", borderRadius: theme.radii.sm, paddingHorizontal: theme.spacing.xs, borderWidth: selected ? theme.borderWidths.hairline : theme.borderWidths.none, borderColor: theme.colors.colorPrimary, backgroundColor: selected ? theme.colors.colorPrimaryTint : theme.colors.colorTransparent, opacity: pressed ? theme.opacity.subdued : theme.opacity.full })}><ThemedText variant="caption" weight="semibold" style={{ color: selected ? theme.colors.colorPrimary : theme.colors.colorTextPrimary, textAlign: "center" }}>{t(labelKey)}</ThemedText></Pressable></Animated.View>;
+  return <Animated.View style={{ flex: 1, transform: [{ scale }] }}><Pressable accessibilityRole="tab" accessibilityState={{ selected }} onPress={onPress} onPressIn={() => animateScale(theme.motion.pressScale.control)} onPressOut={() => animateScale(1)} style={({ pressed }) => ({ minHeight: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center", borderRadius: theme.radii.sm, paddingHorizontal: theme.spacing.xs, borderWidth: selected ? theme.borderWidths.hairline : theme.borderWidths.none, borderColor: selected ? theme.colors.colorOverlay : theme.colors.colorPrimary, backgroundColor: selected ? theme.colors.colorOverlay : theme.colors.colorTransparent, opacity: pressed ? theme.opacity.subdued : theme.opacity.full })}><ThemedText variant="caption" weight="semibold" style={{ color: selected ? theme.colors.colorTextInverse : theme.colors.colorTextPrimary, textAlign: "center" }}>{t(labelKey)}</ThemedText></Pressable></Animated.View>;
 }
 
 export function PurchasePlanTabs({ onChange, value }: PurchasePlanTabsProps) {

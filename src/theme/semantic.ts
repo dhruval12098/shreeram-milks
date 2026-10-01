@@ -8,6 +8,8 @@ export const semantic = {
   colorDanger: primitives.red600,
   colorDangerPressed: primitives.red600, // TODO: add a confirmed pressed red ramp step.
   colorDangerTint: primitives.red100,
+  colorSuccess: primitives.green800,
+  colorSuccessTint: primitives.green100,
   colorWarning: primitives.amber600,
   colorWarningTint: primitives.amber100,
   colorInfo: primitives.blue600,

@@ -209,6 +209,8 @@ Deletion:
 - Default state works.
 - Empty-address state exists.
 - Non-serviceable state has clear UI.
+- Required text fields reject whitespace-only values.
+- Editing a pincode recalculates local mock serviceability.
 - All copy localized.
 - No mock imports in screen.
 
@@ -263,6 +265,11 @@ Empty selected date:
 Phase 1:
 - mock/local behavior only
 - use service/hook if data-driven
+- calendar dates must be generated from the displayed month using full dates,
+  correct month length, and weekday offset; mock delivery records must match
+  the full date rather than only the day number
+- skip/pause actions must update shared mock/local delivery state so the
+  resulting state remains consistent when revisiting the calendar
 
 ---
 
@@ -314,6 +321,7 @@ Save Instructions
 Phase 1:
 - save locally
 - show success acknowledgment
+- clear the saved acknowledgment when the user edits the draft
 - maintain future service contract shape
 
 ---
@@ -371,6 +379,11 @@ Support/contact entry must remain easy to find because users and reviewers may l
 - account/deletion assistance
 - privacy/contact pathways
 
+Mock/local behavior is expected in Phase 1. FAQ and issue-category selections
+must show relevant frontend content. If chat or calling is not connected, state
+that clearly instead of showing unrelated support text or implying a live
+connection.
+
 ---
 
 # 8. Checkout Payment — Must Be Upgraded
@@ -391,6 +404,9 @@ Required:
 - payment reassurance
 - disabled/loading state
 - mock success behavior only
+- carry the selected serviceable address and delivery slot through review and
+  payment into the success summary; prevent continuing when no serviceable
+  address is selected
 
 Suggested methods:
 
@@ -425,6 +441,8 @@ Required:
 - delivery date
 - delivery slot
 - delivery address
+- use the same generated mock order ID for success and tracking; show the
+  checkout-selected address and delivery slot
 - primary CTA: Track Order
 - secondary CTA: Back Home / Continue Shopping
 
@@ -483,6 +501,10 @@ No second localization state system.
 Changing language should visibly update UI.
 
 Persist selection using existing client-state conventions.
+In Phase 1 this means local device persistence, not backend account sync.
+
+Profile edits should use the shared local profile state anywhere the profile
+is displayed, including Settings.
 
 ---
 

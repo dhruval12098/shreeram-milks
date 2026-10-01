@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -24,12 +25,11 @@ import type { Product } from "../src/types/models";
 import { useAppStore } from "../src/store/useAppStore";
 
 const categories = ["All", "Milk", "Curd", "Paneer", "Ghee", "Butter"] as const;
-const bannerImage =
-  "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1200&q=85";
 
 export default function HomeScreen() {
   const theme = useTheme();
-  const { data: products = [], isError, isLoading } = useProducts();
+  const { t } = useTranslation();
+  const { data: products = [], isError, isLoading, refetch } = useProducts();
   const [activeTab, setActiveTab] = useState("home");
   const [activeCategory, setActiveCategory] =
     useState<(typeof categories)[number]>("All");
@@ -93,12 +93,12 @@ export default function HomeScreen() {
                 : theme.colors.colorTextPrimary,
             }}
           >
-            {item}
+            {t(`home.categories.${item.toLowerCase()}`)}
           </ThemedText>
         </Pressable>
       );
     },
-    [activeCategory, theme],
+    [activeCategory, t, theme],
   );
 
   const listHeader = (
@@ -117,7 +117,7 @@ export default function HomeScreen() {
         }}
       >
         <View style={{ gap: theme.spacing.xs }}>
-          <ThemedText variant="h2">Good Morning, Priya</ThemedText>
+          <ThemedText variant="h2">{t("home.greeting", { name: "Priya" })}</ThemedText>
           <View
             style={{
               flexDirection: "row",
@@ -127,7 +127,7 @@ export default function HomeScreen() {
           >
             <AppIcon
               icon={LocationIcon}
-              accessibilityLabel="Delivery location"
+              accessibilityLabel={t("home.deliveryLocation")}
               size="sm"
               tone="secondary"
             />
@@ -135,13 +135,14 @@ export default function HomeScreen() {
               variant="caption"
               style={{ color: theme.colors.colorTextSecondary }}
             >
-              Greenwood Meadows, Villa 4B
+              {t("home.location")}
             </ThemedText>
           </View>
         </View>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Notifications"
+          accessibilityLabel={t("home.notifications")}
+          onPress={() => router.push("/settings")}
           style={{
             width: theme.sizes.avatarMd,
             height: theme.sizes.avatarMd,
@@ -163,7 +164,7 @@ export default function HomeScreen() {
         }}
       >
         <Image
-          source={{ uri: bannerImage }}
+          source={require("../assets/onboarding-milk-hero.png")}
           contentFit="cover"
           transition={180}
           style={{ width: "100%", height: "100%" }}
@@ -201,20 +202,21 @@ export default function HomeScreen() {
               weight="semibold"
               style={{ color: theme.colors.colorPrimary }}
             >
-              SEASONAL OFFER
+              {t("home.offer")}
             </ThemedText>
           </View>
           <ThemedText
-            variant="h2"
+            variant="body"
+            weight="bold"
             style={{ color: theme.colors.colorTextInverse }}
           >
-            Farm-fresh A2 milk — delivered before 7 AM
+            {t("home.bannerTitle")}
           </ThemedText>
           <ThemedText
             variant="caption"
             style={{ color: theme.colors.colorTextInverse }}
           >
-            Pure goodness straight from our organic farm.
+            {t("home.bannerDetail")}
           </ThemedText>
         </View>
       </View>
@@ -249,7 +251,7 @@ export default function HomeScreen() {
         >
           <AppIcon
             icon={CalendarIcon}
-            accessibilityLabel="Next delivery"
+            accessibilityLabel={t("home.nextDelivery")}
             size="sm"
             tone="primary"
           />
@@ -260,10 +262,10 @@ export default function HomeScreen() {
             weight="semibold"
             style={{ color: theme.colors.colorPrimary }}
           >
-            Tomorrow, 24 Oct • 6:30 AM
+            {t("home.nextDeliveryTime")}
           </ThemedText>
           <ThemedText variant="bodySmall">
-            A2 Desi Cow Milk (1 Litre)
+            {t("home.nextDeliveryProduct")}
           </ThemedText>
         </View>
         <ThemedText
@@ -271,7 +273,7 @@ export default function HomeScreen() {
           weight="semibold"
           style={{ color: theme.colors.colorTextSecondary }}
         >
-          Skip / Pause
+          {t("home.skipPause")}
         </ThemedText>
       </View>
       <View
@@ -281,10 +283,10 @@ export default function HomeScreen() {
           justifyContent: "space-between",
         }}
       >
-        <ThemedText variant="h2">Today’s Picks</ThemedText>
+        <ThemedText variant="h2">{t("home.picks")}</ThemedText>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="See all products"
+          accessibilityLabel={t("home.seeAll")}
           onPress={() => router.push("/products")}
         >
           <ThemedText
@@ -292,7 +294,7 @@ export default function HomeScreen() {
             weight="semibold"
             style={{ color: theme.colors.colorTextSecondary }}
           >
-            See all ›
+            {t("home.seeAll")}
           </ThemedText>
         </Pressable>
       </View>
@@ -306,12 +308,14 @@ export default function HomeScreen() {
       <StatusBar barStyle="dark-content" />
       <View style={{ flex: 1, paddingHorizontal: theme.spacing.md }}>
         {isLoading ? (
-          <StateMessage type="loading" title="Loading fresh products" />
+          <StateMessage type="loading" title={t("home.loading")} />
         ) : isError ? (
           <StateMessage
             type="error"
-            title="Could not load products"
-            description="Please try again shortly."
+            title={t("home.errorTitle")}
+            description={t("home.errorDetail")}
+            actionLabel={t("common.retry")}
+            onAction={() => refetch()}
           />
         ) : (
           <FlatList
@@ -324,7 +328,7 @@ export default function HomeScreen() {
             ListEmptyComponent={
               <StateMessage
                 type="empty"
-                title={`No ${activeCategory.toLowerCase()} products are available`}
+                title={t("home.empty", { category: t(`home.categories.${activeCategory.toLowerCase()}`) })}
               />
             }
             showsVerticalScrollIndicator={false}
@@ -341,11 +345,11 @@ export default function HomeScreen() {
           if (key === "profile") router.push("/profile");
         }}
         items={[
-          { key: "home", label: "Home", icon: HomeIcon },
-          { key: "products", label: "Products", icon: ProductsIcon },
-          { key: "subscriptions", label: "Subscriptions", icon: CalendarIcon },
-          { key: "cart", label: "Cart", icon: CartIcon },
-          { key: "profile", label: "Profile", icon: ProfileIcon },
+          { key: "home", label: t("navigation.home"), icon: HomeIcon },
+          { key: "products", label: t("navigation.products"), icon: ProductsIcon },
+          { key: "subscriptions", label: t("navigation.subscriptions"), icon: CalendarIcon },
+          { key: "cart", label: t("navigation.cart"), icon: CartIcon },
+          { key: "profile", label: t("navigation.profile"), icon: ProfileIcon },
         ]}
       />
     </SafeAreaView>

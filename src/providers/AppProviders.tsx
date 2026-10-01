@@ -5,11 +5,12 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import '../lib/i18n';
 import { ThemeProvider } from '../theme';
+import { ToastProvider } from './ToastProvider';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
 });
 
 export function AppProviders({ children }: PropsWithChildren) {
-  return <KeyboardProvider><SafeAreaProvider><ThemeProvider><QueryClientProvider client={queryClient}>{children}</QueryClientProvider></ThemeProvider></SafeAreaProvider></KeyboardProvider>;
+  return <KeyboardProvider><SafeAreaProvider><ThemeProvider><QueryClientProvider client={queryClient}><ToastProvider>{children}</ToastProvider></QueryClientProvider></ThemeProvider></SafeAreaProvider></KeyboardProvider>;
 }

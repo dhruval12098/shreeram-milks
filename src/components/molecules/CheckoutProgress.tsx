@@ -29,7 +29,7 @@ export function CheckoutProgress({ step, title }: CheckoutProgressProps) {
         }}
       >
         <Pressable
-          accessibilityLabel="Back"
+          accessibilityLabel={t("commonActions.back")}
           onPress={() => router.back()}
           style={{
             position: "absolute",

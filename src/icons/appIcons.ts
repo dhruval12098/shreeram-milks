@@ -10,6 +10,7 @@ export {
   ArrowUp01Icon as ChevronUpIcon,
   Calendar03Icon as CalendarIcon,
   Cancel01Icon as CloseIcon,
+  Tick02Icon as CheckIcon,
   Clock01Icon as ClockIcon,
   Download01Icon as DownloadIcon,
   HelpCircleIcon as HelpIcon,

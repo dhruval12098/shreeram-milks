@@ -28,5 +28,5 @@ export function ThemedText({ children, style, variant = 'body', weight, ...props
   const type = theme.typography[variant];
   const weightName = weight ?? fontWeightByVariant[variant];
 
-  return <Text {...props} style={[{ color: theme.colors.colorTextPrimary, fontSize: type.fontSize, lineHeight: type.lineHeight, fontFamily: fontFamilyForLocale(locale, weightName), fontWeight: locale === 'gu' ? type.weight : undefined }, style]}>{children}</Text>;
+  return <Text {...props} style={[{ color: theme.colors.colorTextPrimary, fontSize: type.fontSize, lineHeight: type.lineHeight, fontFamily: fontFamilyForLocale(locale, weightName), fontWeight: locale === 'gu' ? theme.fontWeights[weightName] : undefined }, style]}>{children}</Text>;
 }

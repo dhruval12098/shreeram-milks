@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -11,24 +12,19 @@ import { SubscriptionBottomSheet } from "../src/components/organisms/Subscriptio
 import { BackIcon, CalendarIcon } from "../src/icons/appIcons";
 import { useTheme } from "../src/theme";
 
-const cancellationReasons = [
-  "Too expensive",
-  "Quality issue",
-  "Not needed anymore",
-  "Moving away",
-  "Other",
-];
-
 export default function ManageSubscriptionScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [cancelOpen, setCancelOpen] = useState(false);
   const [editing, setEditing] = useState<"quantity" | "days" | "slot" | null>(
     null,
   );
-  const [quantity, setQuantity] = useState("1 Litre");
+  const [quantity, setQuantity] = useState("oneLitre");
   const [days, setDays] = useState("Mon–Sat");
   const [slot, setSlot] = useState("5–7 AM");
-  const [reason, setReason] = useState("Quality issue");
+  const [reason, setReason] = useState("qualityIssue");
+  const [nextDeliverySkipped, setNextDeliverySkipped] = useState(false);
+  const cancellationReasons = ["tooExpensive", "qualityIssue", "notNeeded", "moving", "other"];
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}
@@ -48,13 +44,13 @@ export default function ManageSubscriptionScreen() {
         >
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Back to subscriptions"
+            accessibilityLabel={t("subscriptionManage.back")}
             onPress={() => router.back()}
           >
             <AppIcon icon={BackIcon} accessibilityLabel="" size="md" />
           </Pressable>
           <ThemedText variant="body" weight="semibold">
-            Manage Subscription
+            {t("subscriptionManage.title")}
           </ThemedText>
           <ThemedText variant="h2">?</ThemedText>
         </View>
@@ -79,9 +75,7 @@ export default function ManageSubscriptionScreen() {
             ]}
           >
             <Image
-              source={{
-                uri: "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=400&q=80",
-              }}
+              source={require("../assets/onboarding-milk-hero.png")}
               contentFit="cover"
               style={{
                 width: theme.sizes.productCardImageSize,
@@ -109,7 +103,7 @@ export default function ManageSubscriptionScreen() {
                     weight="semibold"
                     style={{ color: theme.colors.colorPrimary }}
                   >
-                    ● Active
+                    ● {t("subscriptionManage.active")}
                   </ThemedText>
                 </View>
                 <ThemedText
@@ -121,20 +115,20 @@ export default function ManageSubscriptionScreen() {
                 </ThemedText>
               </View>
               <ThemedText variant="body" weight="semibold">
-                A2 Desi Gir Cow Milk
+                {t("subscriptionManage.product")}
               </ThemedText>
               <ThemedText
                 variant="caption"
                 style={{ color: theme.colors.colorTextSecondary }}
               >
-                1L Recyclable Glass Bottle
+                {t("subscriptionManage.productUnit")}
               </ThemedText>
               <ThemedText
                 variant="caption"
                 weight="semibold"
                 style={{ color: theme.colors.colorPrimary }}
               >
-                ▣ Delivering tomorrow before 7 AM
+                ▣ {t("subscriptionManage.tomorrowDelivery")}
               </ThemedText>
             </View>
           </View>
@@ -154,7 +148,7 @@ export default function ManageSubscriptionScreen() {
               }}
             >
               <ThemedText variant="body" weight="semibold">
-                Plan Summary
+                {t("subscriptionManage.planSummary")}
               </ThemedText>
               <View
                 style={{
@@ -169,34 +163,34 @@ export default function ManageSubscriptionScreen() {
                   weight="semibold"
                   style={{ color: theme.colors.colorTextSecondary }}
                 >
-                  PREPAID ACTIVE
+                  {t("subscriptionManage.prepaidActive")}
                 </ThemedText>
               </View>
             </View>
             <View style={{ gap: theme.spacing.sm }}>
               <SummaryRow
-                label="Frequency"
-                value={days === "Mon–Sat" ? "Mon to Sat (6 days/wk)" : days}
+                label={t("subscriptionManage.frequency")}
+                value={days === "Mon–Sat" ? t("subscriptionManage.monToSat") : t(`subscriptionManage.${days === "Daily" ? "daily" : "alternateDays"}`)}
               />
               <SummaryRow
-                label="Delivery Days"
+                label={t("subscriptionManage.deliveryDays")}
                 value={days === "Mon–Sat" ? "M  T  W  T  F  S" : days}
               />
               <SummaryRow
-                label="Bottle Quantity"
-                value={`${quantity} (Glass Bottle)`}
+                label={t("subscriptionManage.bottleQuantity")}
+                value={t("subscriptionManage.glassBottle", { quantity: t(`subscriptionManage.${quantity}`) })}
               />
               <SummaryRow
-                label="Preferred Slot"
+                label={t("subscriptionManage.preferredSlot")}
                 value={
-                  slot === "5–7 AM" ? "5:00 AM – 7:00 AM" : "7:00 AM – 9:00 AM"
+                  slot === "5–7 AM" ? t("subscriptionManage.earlySlot") : t("subscriptionManage.regularSlot")
                 }
-                detail="Silent Porch Drop"
+                detail={t("subscriptionManage.silentPorch")}
               />
-              <SummaryRow label="Start Date" value="12 Oct 2024" />
+              <SummaryRow label={t("subscriptionManage.startDate")} value={t("subscriptionManage.startDateValue")} />
               <SummaryRow
-                label="Next Delivery"
-                value="Tomorrow, 25 Oct"
+                label={t("subscriptionManage.nextDelivery")}
+                value={nextDeliverySkipped ? t("subscriptionManage.skipped") : t("subscriptionManage.nextDeliveryValue")}
                 accent
               />
             </View>
@@ -209,7 +203,7 @@ export default function ManageSubscriptionScreen() {
                 backgroundColor: theme.colors.colorSurfaceMuted,
               }}
             >
-              <ThemedText variant="bodySmall">▣ Per Delivery</ThemedText>
+              <ThemedText variant="bodySmall">▣ {t("subscriptionManage.perDelivery")}</ThemedText>
               <View style={{ alignItems: "flex-end" }}>
                 <ThemedText variant="body" weight="bold">
                   ₹95
@@ -218,7 +212,7 @@ export default function ManageSubscriptionScreen() {
                   variant="caption"
                   style={{ color: theme.colors.colorTextSecondary }}
                 >
-                  Zero Delivery Fee
+                  {t("subscriptionManage.zeroDeliveryFee")}
                 </ThemedText>
               </View>
             </View>
@@ -233,35 +227,36 @@ export default function ManageSubscriptionScreen() {
           >
             <View style={{ padding: theme.spacing.md }}>
               <ThemedText variant="body" weight="semibold">
-                Manage Schedule & Preferences
+                {t("subscriptionManage.managePreferences")}
               </ThemedText>
             </View>
             <ManageRow
-              title="Change quantity"
-              subtitle="Adjust daily volume delivered"
-              value={quantity}
+              title={t("subscriptionManage.changeQuantity")}
+              subtitle={t("subscriptionManage.changeQuantityDetail")}
+              value={t(`subscriptionManage.${quantity}`)}
               onPress={() => setEditing("quantity")}
             />
             <ManageRow
-              title="Change days"
-              subtitle="Switch delivery days or frequency"
+              title={t("subscriptionManage.changeDays")}
+              subtitle={t("subscriptionManage.changeDaysDetail")}
               value={days}
               onPress={() => setEditing("days")}
             />
             <ManageRow
-              title="Change delivery slot"
-              subtitle="Early dawn or morning drop"
+              title={t("subscriptionManage.changeSlot")}
+              subtitle={t("subscriptionManage.changeSlotDetail")}
               value={slot}
               onPress={() => setEditing("slot")}
             />
             <ManageRow
-              title="Skip next delivery"
-              subtitle="Skip tomorrow, 25 Oct"
-              value="Tomorrow"
+              title={t("subscriptionManage.skipDelivery")}
+              subtitle={t("subscriptionManage.skipDeliveryDetail")}
+              value={nextDeliverySkipped ? t("subscriptionManage.skipped") : t("subscriptionManage.tomorrow")}
+              onPress={() => setNextDeliverySkipped((current) => !current)}
             />
             <ManageRow
-              title="Pause subscription"
-              subtitle="Going out of town / vacation"
+              title={t("subscriptionManage.pause")}
+              subtitle={t("subscriptionManage.pauseDetail")}
               onPress={() => router.push("/subscription-vacation")}
             />
           </View>
@@ -278,14 +273,13 @@ export default function ManageSubscriptionScreen() {
               weight="semibold"
               style={{ color: theme.colors.colorTextInverse }}
             >
-              Chilled Glass Bottle Return
+              {t("subscriptionManage.returnTitle")}
             </ThemedText>
             <ThemedText
               variant="caption"
               style={{ color: theme.colors.colorPrimaryTint }}
             >
-              Please rinse and leave yesterday’s glass bottle outside by 5 AM
-              for daily sanitization swap.
+              {t("subscriptionManage.returnDetail")}
             </ThemedText>
           </View>
           <Pressable
@@ -304,7 +298,7 @@ export default function ManageSubscriptionScreen() {
               weight="semibold"
               style={{ color: theme.colors.colorDanger }}
             >
-              ⊗ Cancel subscription
+              ⊗ {t("subscriptionManage.cancel")}
             </ThemedText>
           </Pressable>
           <ThemedText
@@ -314,7 +308,7 @@ export default function ManageSubscriptionScreen() {
               textAlign: "center",
             }}
           >
-            Unused prepaid wallet balances remain 100% refundable anytime.
+            {t("subscriptionManage.refundNotice")}
           </ThemedText>
         </ScrollView>
       </View>
@@ -329,20 +323,19 @@ export default function ManageSubscriptionScreen() {
               weight="semibold"
               style={{ color: theme.colors.colorPrimary }}
             >
-              ● GAU FRESH • CARE TEAM
+              ● {t("subscriptionManage.careTeam")}
             </ThemedText>
-            <ThemedText variant="h2">Cancel subscription?</ThemedText>
+            <ThemedText variant="h2">{t("subscriptionManage.cancelTitle")}</ThemedText>
             <ThemedText
               variant="bodySmall"
               style={{ color: theme.colors.colorTextSecondary }}
             >
-              We’re sad to see you go! Let us know what went wrong so we can
-              improve our service.
+              {t("subscriptionManage.cancelDetail")}
             </ThemedText>
           </View>
           <View style={{ gap: theme.spacing.sm }}>
             <ThemedText variant="bodySmall" weight="semibold">
-              Please select a reason:
+              {t("subscriptionManage.selectReason")}
             </ThemedText>
             <View
               style={{
@@ -377,7 +370,7 @@ export default function ManageSubscriptionScreen() {
                           : theme.colors.colorTextPrimary,
                     }}
                   >
-                    {item}
+                    {t(`subscriptionManage.${item}`)}
                   </ThemedText>
                 </Pressable>
               ))}
@@ -396,25 +389,24 @@ export default function ManageSubscriptionScreen() {
             }}
           >
             <ThemedText variant="bodySmall" weight="semibold">
-              Going out of town?
+              {t("subscriptionManage.awayTitle")}
             </ThemedText>
             <ThemedText
               variant="caption"
               style={{ color: theme.colors.colorTextSecondary }}
             >
-              You can pause deliveries instantly for any date range with zero
-              cancellation fees.
+              {t("subscriptionManage.awayDetail")}
             </ThemedText>
             <ThemedText
               variant="caption"
               weight="semibold"
               style={{ color: theme.colors.colorPrimary }}
             >
-              Pause Instead
+              {t("subscriptionManage.pauseInstead")}
             </ThemedText>
           </Pressable>
           <Button onPress={() => setCancelOpen(false)}>
-            Keep My Subscription →
+            {t("subscriptionManage.keep")} →
           </Button>
           <Button
             variant="secondary"
@@ -424,7 +416,7 @@ export default function ManageSubscriptionScreen() {
             }}
             style={{ backgroundColor: theme.colors.colorDangerTint }}
           >
-            Cancel Anyway
+            {t("subscriptionManage.cancelAnyway")}
           </Button>
         </View>
       </SubscriptionBottomSheet>
@@ -436,16 +428,16 @@ export default function ManageSubscriptionScreen() {
           <ScheduleEditor
             title={
               editing === "quantity"
-                ? "Change quantity"
+                ? t("subscriptionManage.changeQuantity")
                 : editing === "days"
-                  ? "Change delivery days"
-                  : "Change delivery slot"
+                  ? t("subscriptionManage.changeDays")
+                  : t("subscriptionManage.changeSlot")
             }
             values={
               editing === "quantity"
-                ? ["1 Litre", "2 Litres"]
+                ? ["oneLitre", "twoLitres"]
                 : editing === "days"
-                  ? ["Mon–Sat", "Alternate Days", "Daily"]
+                  ? ["Mon–Sat", "alternateDays", "daily"]
                   : ["5–7 AM", "7–9 AM"]
             }
             current={
@@ -483,6 +475,7 @@ function ScheduleEditor({
   values: string[];
 }) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [selected, setSelected] = useState(current);
   return (
     <View style={{ gap: theme.spacing.md }}>
@@ -507,17 +500,19 @@ function ScheduleEditor({
             }}
           >
             <ThemedText variant="bodySmall" weight="semibold">
-              {value}
+              {value === "oneLitre" || value === "twoLitres" || value === "alternateDays" || value === "daily"
+                ? t(`subscriptionManage.${value}`)
+                : value}
             </ThemedText>
           </Pressable>
         ))}
       </View>
       <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
         <Button variant="secondary" style={{ flex: 1 }} onPress={onCancel}>
-          Cancel
+          {t("subscriptionManage.cancelAction")}
         </Button>
         <Button style={{ flex: 1 }} onPress={() => onSave(selected)}>
-          Save changes
+          {t("subscriptionManage.saveChanges")}
         </Button>
       </View>
     </View>
@@ -591,9 +586,12 @@ function ManageRow({
   value?: string;
 }) {
   const theme = useTheme();
+  const { t } = useTranslation();
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled: !onPress }}
+      disabled={!onPress}
       onPress={onPress}
       style={{
         flexDirection: "row",
@@ -641,12 +639,7 @@ function ManageRow({
           </ThemedText>
         </View>
       ) : null}
-      <ThemedText
-        variant="body"
-        style={{ color: theme.colors.colorTextSecondary }}
-      >
-        ›
-      </ThemedText>
+      {onPress ? <ThemedText variant="body" style={{ color: theme.colors.colorTextSecondary }}>›</ThemedText> : <ThemedText variant="caption" style={{ color: theme.colors.colorTextDisabled }}>{t("commonActions.comingSoon")}</ThemedText>}
     </Pressable>
   );
 }

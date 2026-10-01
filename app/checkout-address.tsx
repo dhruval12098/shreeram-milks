@@ -27,7 +27,7 @@ export default function CheckoutAddressScreen() {
   const serviceableAddresses = addresses.filter((address) => address.isServiceable);
   const selectedAddressId = serviceableAddresses.some((address) => address.id === checkoutSelection.addressId)
     ? checkoutSelection.addressId
-    : serviceableAddresses[0]?.id ?? null;
+    : null;
 
   const emptyCart = <View style={{ alignItems: "center", gap: theme.spacing.md, borderRadius: theme.radii.lg, padding: theme.spacing.lg, backgroundColor: theme.colors.colorSurface }}>
     <ThemedText variant="body" weight="semibold">{t("checkout.empty.title")}</ThemedText>
@@ -52,6 +52,8 @@ export default function CheckoutAddressScreen() {
               <AppIcon icon={HomeIcon} size="sm" accessibilityLabel="" tone={selected ? "primary" : "secondary"} /><View style={{ flex: 1, gap: theme.spacing.xs }}><View style={{ flexDirection: "row", alignItems: "center", gap: theme.spacing.sm }}><ThemedText variant="bodySmall" weight="bold">{t(`addresses.${address.addressType}`)}</ThemedText>{address.isDefault ? <View style={{ borderRadius: theme.radii.pill, paddingHorizontal: theme.spacing.sm, backgroundColor: theme.colors.colorPrimary }}><ThemedText variant="badgeLabel" style={{ color: theme.colors.colorTextInverse }}>{t("addresses.default")}</ThemedText></View> : null}</View><ThemedText variant="caption" style={{ color: theme.colors.colorTextSecondary }}>{address.line1}, {address.line2}, {address.city} – {address.pincode}</ThemedText></View><View accessible={false} style={{ width: theme.spacing.md, height: theme.spacing.md, borderRadius: theme.radii.pill, borderWidth: theme.borderWidths.medium, borderColor: selected ? theme.colors.colorPrimary : theme.colors.colorBorder, backgroundColor: selected ? theme.colors.colorPrimary : theme.colors.colorSurface }} />
             </Pressable>;
           })}
+          {serviceableAddresses.length === 0 ? <ThemedText variant="bodySmall" style={{ color: theme.colors.colorDanger }}>{t("checkout.review.noAddress")}</ThemedText> : null}
+          <Button variant="secondary" onPress={() => router.push("/delivery-address-form")}>{t("addresses.add")}</Button>
         </View>
         <View style={{ gap: theme.spacing.sm }}>
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><ThemedText variant="bodySmall" weight="semibold">{t("checkout.address.slotTitle")}</ThemedText><ThemedText variant="overline" style={{ color: theme.colors.colorPrimary }}>{t("checkout.address.everyday")}</ThemedText></View>
@@ -65,6 +67,6 @@ export default function CheckoutAddressScreen() {
         </View>
       </>}
     </ScrollView>
-    {cart.length > 0 ? <CheckoutFooter amount={total} label={t("checkout.address.continue")} onPress={() => router.push("/checkout-review")} /> : null}
+    {cart.length > 0 ? <CheckoutFooter amount={total} disabled={!selectedAddressId} label={t("checkout.address.continue")} onPress={() => router.push("/checkout-review")} /> : null}
   </SafeAreaView>;
 }

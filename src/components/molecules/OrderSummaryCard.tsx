@@ -1,4 +1,5 @@
 import { Image } from "expo-image";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 
 import { AppIcon } from "../atoms/AppIcon";
@@ -14,12 +15,13 @@ interface OrderSummaryCardProps {
 
 export function OrderSummaryCard({ onPress, order }: OrderSummaryCardProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const item = order.items[0];
-  const active = order.status === "out-for-delivery";
+  const active = order.status !== "delivered";
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Order ${order.id}`}
+      accessibilityLabel={t("orders.orderLabel", { number: order.id })}
       onPress={onPress}
       style={({ pressed }) => ({
         padding: theme.spacing.sm,
@@ -64,7 +66,7 @@ export function OrderSummaryCard({ onPress, order }: OrderSummaryCardProps) {
             weight="semibold"
             style={{ color: theme.colors.colorPrimary }}
           >
-            {active ? "OUT FOR DELIVERY" : "DELIVERED"}
+            {t(`orders.status.${order.status}`)}
           </ThemedText>
         </View>
       </View>
@@ -93,8 +95,7 @@ export function OrderSummaryCard({ onPress, order }: OrderSummaryCardProps) {
             style={{ color: theme.colors.colorTextSecondary }}
             numberOfLines={1}
           >
-            {item.unit} · {order.items.length} item
-            {order.items.length === 1 ? "" : "s"}
+            {item.unit} · {t("orders.itemCount", { count: order.items.length })}
           </ThemedText>
         </View>
         <ThemedText variant="bodySmall" weight="bold">

@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -15,7 +16,8 @@ type OrderFilter = "all" | "active" | "delivered";
 
 export default function OrdersScreen() {
   const theme = useTheme();
-  const { data: orders = [], isError, isLoading } = useOrders();
+  const { t } = useTranslation();
+  const { data: orders = [], isError, isLoading, refetch } = useOrders();
   const [filter, setFilter] = useState<OrderFilter>("all");
   const filteredOrders = useMemo(
     () =>
@@ -23,7 +25,7 @@ export default function OrdersScreen() {
         ? orders
         : orders.filter((order) =>
             filter === "active"
-              ? order.status === "out-for-delivery"
+              ? order.status !== "delivered"
               : order.status === "delivered",
           ),
     [filter, orders],
@@ -35,7 +37,9 @@ export default function OrdersScreen() {
       >
         <StateMessage
           type={isError ? "error" : "loading"}
-          title={isError ? "Could not load orders" : "Loading orders"}
+          title={isError ? t("orders.error") : t("orders.loading")}
+          actionLabel={isError ? t("common.retry") : undefined}
+          onAction={isError ? () => refetch() : undefined}
         />
       </SafeAreaView>
     );
@@ -74,7 +78,7 @@ export default function OrdersScreen() {
               }}
             >
               <Pressable
-                accessibilityLabel="Back"
+                accessibilityLabel={t("orders.back")}
                 onPress={() => router.back()}
                 style={{
                   width: theme.layout.touchTargetMin,
@@ -86,11 +90,11 @@ export default function OrdersScreen() {
                 <AppIcon icon={BackIcon} accessibilityLabel="" />
               </Pressable>
               <ThemedText variant="h2" style={{ flex: 1 }}>
-                My Orders
+                {t("orders.title")}
               </ThemedText>
               <AppIcon
                 icon={SearchIcon}
-                accessibilityLabel="Search orders"
+                accessibilityLabel={t("orders.search")}
                 tone="secondary"
               />
             </View>
@@ -105,7 +109,7 @@ export default function OrdersScreen() {
                 variant="caption"
                 style={{ color: theme.colors.colorPrimary }}
               >
-                ● Sunrise delivery arriving tomorrow (5:00 – 7:00 AM)
+                ● {t("orders.arrival")}
               </ThemedText>
             </View>
             <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
@@ -133,11 +137,7 @@ export default function OrdersScreen() {
                           : theme.colors.colorTextPrimary,
                     }}
                   >
-                    {item === "all"
-                      ? "All"
-                      : item === "active"
-                        ? "Active"
-                        : "Delivered"}
+                    {t(`orders.${item}`)}
                   </ThemedText>
                 </Pressable>
               ))}
@@ -147,7 +147,7 @@ export default function OrdersScreen() {
               weight="bold"
               style={{ color: theme.colors.colorTextSecondary }}
             >
-              CURRENT ORDER
+              {t("orders.current")}
             </ThemedText>
           </View>
         }

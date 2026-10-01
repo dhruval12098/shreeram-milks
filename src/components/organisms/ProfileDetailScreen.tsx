@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -28,6 +29,7 @@ export function ProfileDetailScreen({
   title,
 }: ProfileDetailScreenProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [editableRows, setEditableRows] = useState(rows);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [draft, setDraft] = useState("");
@@ -64,7 +66,7 @@ export function ProfileDetailScreen({
           }}
         >
           <Pressable
-            accessibilityLabel="Back"
+            accessibilityLabel={t("profileDetail.back")}
             onPress={() => router.back()}
             style={{
               width: theme.layout.touchTargetMin,
@@ -132,7 +134,7 @@ export function ProfileDetailScreen({
                 </ThemedText>
               </View>
               <Pressable
-                accessibilityLabel={`Edit ${row.title}`}
+                accessibilityLabel={t("profileDetail.editRow", { title: row.title })}
                 onPress={() => startEdit(index)}
               >
                 <AppIcon
@@ -146,7 +148,7 @@ export function ProfileDetailScreen({
           ))}
         </View>
         <Button variant="secondary" onPress={() => router.back()}>
-          Done
+          {t("profileDetail.done")}
         </Button>
       </ScrollView>
       <SubscriptionBottomSheet
@@ -156,8 +158,8 @@ export function ProfileDetailScreen({
         <View style={{ gap: theme.spacing.md }}>
           <ThemedText variant="h2">
             {editingIndex === null
-              ? "Edit"
-              : `Edit ${editableRows[editingIndex].title}`}
+              ? t("profileDetail.edit")
+              : t("profileDetail.editRow", { title: editableRows[editingIndex].title })}
           </ThemedText>
           <AppInput
             autoFocus
@@ -165,7 +167,7 @@ export function ProfileDetailScreen({
             onChangeText={setDraft}
             placeholder={
               editingIndex === null
-                ? "Enter updated details"
+                ? t("profileDetail.updatedDetails")
                 : editableRows[editingIndex].detail
             }
           />
@@ -175,10 +177,10 @@ export function ProfileDetailScreen({
               style={{ flex: 1 }}
               onPress={() => setEditingIndex(null)}
             >
-              Cancel
+              {t("profileDetail.cancel")}
             </Button>
             <Button style={{ flex: 1 }} onPress={save}>
-              Save
+              {t("profileDetail.save")}
             </Button>
           </View>
         </View>

@@ -72,8 +72,8 @@ export function AccountMenuRow({
             {title}
           </ThemedText>
           <ThemedText
-            variant="bodySmall"
-            numberOfLines={1}
+            variant="caption"
+            numberOfLines={2}
             style={{ color: theme.colors.colorTextSecondary }}
           >
             {subtitle}
@@ -86,7 +86,7 @@ export function AccountMenuRow({
             style={{
               color: isDanger
                 ? theme.colors.colorDanger
-                : theme.colors.colorPrimary,
+                : theme.colors.colorTextPrimary,
             }}
           >
             {trailing}

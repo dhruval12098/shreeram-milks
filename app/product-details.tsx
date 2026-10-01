@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -22,9 +23,10 @@ import { useTheme } from "../src/theme";
 
 export default function ProductDetailsScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { productId } = useLocalSearchParams<{ productId?: string }>();
   const id = Array.isArray(productId) ? productId[0] : productId;
-  const { data: products = [], isError, isLoading } = useProducts();
+  const { data: products = [], isError, isLoading, refetch } = useProducts();
   const product = useMemo(
     () => products.find((item) => item.id === id),
     [id, products],
@@ -39,7 +41,7 @@ export default function ProductDetailsScreen() {
       <SafeAreaView
         style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}
       >
-        <StateMessage type="loading" title="Loading product" />
+        <StateMessage type="loading" title={t("productDetails.loading")} />
       </SafeAreaView>
     );
   if (isError || !product)
@@ -49,8 +51,10 @@ export default function ProductDetailsScreen() {
       >
         <StateMessage
           type="error"
-          title="Product is unavailable"
-          description="Please return to products and try again."
+          title={t("productDetails.unavailableTitle")}
+          description={t("productDetails.unavailableDetail")}
+          actionLabel={isError ? t("common.retry") : undefined}
+          onAction={isError ? () => refetch() : undefined}
         />
       </SafeAreaView>
     );
@@ -87,7 +91,7 @@ export default function ProductDetailsScreen() {
             />
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Back to products"
+              accessibilityLabel={t("productDetails.back")}
               onPress={() => router.back()}
               style={{
                 position: "absolute",
@@ -147,6 +151,7 @@ export default function ProductDetailsScreen() {
               description={product.description}
               price={product.price}
               unit={product.unit}
+              isAvailable={product.isAvailable}
             />
             <PurchasePlanTabs value={plan} onChange={setPlan} />
             {plan === "trial" ? <TrialPack price={product.price} /> : null}
@@ -171,13 +176,13 @@ export default function ProductDetailsScreen() {
             >
               <View style={{ flex: 1 }}>
                 <ThemedText variant="body" weight="semibold">
-                  Quantity
+                  {t("productDetails.quantity")}
                 </ThemedText>
                 <ThemedText
                   variant="caption"
                   style={{ color: theme.colors.colorTextSecondary }}
                 >
-                  Sanitized glass bottles (1L each)
+                  {t("productDetails.bottleHint")}
                 </ThemedText>
               </View>
               <QuantityStepper
@@ -190,19 +195,19 @@ export default function ProductDetailsScreen() {
             </View>
             <View style={{ gap: theme.spacing.sm }}>
               <ThemedText variant="bodySmall" weight="semibold">
-                Preferred Morning Delivery Slot
+                {t("productDetails.slotTitle")}
               </ThemedText>
               <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
                 <SlotCard
                   active={slot === "early"}
-                  title="5:00 AM – 7:00 AM"
-                  description="Recommended silent drop"
+                  title={t("productDetails.earlySlot")}
+                  description={t("productDetails.earlySlotDetail")}
                   onPress={() => setSlot("early")}
                 />
                 <SlotCard
                   active={slot === "regular"}
-                  title="7:00 AM – 9:00 AM"
-                  description="Regular doorstep delivery"
+                  title={t("productDetails.regularSlot")}
+                  description={t("productDetails.regularSlotDetail")}
                   onPress={() => setSlot("regular")}
                 />
               </View>
@@ -218,20 +223,19 @@ export default function ProductDetailsScreen() {
             >
               <AppIcon
                 icon={CartIcon}
-                accessibilityLabel="Fresh delivery"
+                accessibilityLabel={t("productDetails.freshDelivery")}
                 size="sm"
               />
               <ThemedText
                 variant="bodySmall"
                 style={{ flex: 1, color: theme.colors.colorTextSecondary }}
               >
-                No commitment required. Delivered fresh to your doorstep in
-                temperature-controlled bags.
+                {t("productDetails.deliveryReassurance")}
               </ThemedText>
             </View>
             <NutritionAccordion
-              title="Nutritional Information (per 100ml)"
-              content="Energy: 64 kcal • Protein: 3.4g • Fat: 4.2% • Calcium: 120mg • Free from synthetic hormones and preservatives."
+              title={t("productDetails.nutritionTitle")}
+              content={t("productDetails.nutritionContent")}
             />
           </View>
         </ScrollView>
@@ -252,7 +256,7 @@ export default function ProductDetailsScreen() {
               router.push("/cart");
             }}
           >
-            Buy Now
+            {t("productDetails.buyNow")}
           </Button>
           <Button
             icon={CartIcon}
@@ -262,7 +266,7 @@ export default function ProductDetailsScreen() {
               backgroundColor: theme.colors.colorPrimary,
             }}
           >
-            Add to Cart
+            {t("productDetails.addToCart")}
           </Button>
         </View>
       </View>
@@ -275,13 +279,16 @@ function ProductSummary({
   name,
   price,
   unit,
+  isAvailable,
 }: {
   description: string;
   name: string;
   price: number;
   unit: string;
+  isAvailable: boolean;
 }) {
   const theme = useTheme();
+  const { t } = useTranslation();
   return (
     <View style={{ gap: theme.spacing.sm }}>
       <View
@@ -297,11 +304,11 @@ function ProductSummary({
             variant="bodySmall"
             style={{ color: theme.colors.colorTextSecondary }}
           >
-            ₹{price}/{unit} • inclusive of all taxes
+            {t("productDetails.inclusiveTaxes", { price, unit })}
           </ThemedText>
         </View>
         <View style={{ alignItems: "flex-end", gap: theme.spacing.xs }}>
-          <ThemedText variant="h2" style={{ color: theme.colors.colorPrimary }}>
+          <ThemedText variant="h2">
             ₹{price}
           </ThemedText>
           <View
@@ -309,15 +316,21 @@ function ProductSummary({
               borderRadius: theme.radii.md,
               paddingHorizontal: theme.spacing.sm,
               paddingVertical: theme.spacing.xs,
-              backgroundColor: theme.colors.colorPrimaryTint,
+              backgroundColor: isAvailable
+                ? theme.colors.colorSuccessTint
+                : theme.colors.colorDangerTint,
             }}
           >
             <ThemedText
               variant="caption"
               weight="semibold"
-              style={{ color: theme.colors.colorPrimary }}
+              style={{
+                color: isAvailable
+                  ? theme.colors.colorSuccess
+                  : theme.colors.colorDanger,
+              }}
             >
-              In Stock
+              {t(isAvailable ? "productDetails.inStock" : "productDetails.outOfStock")}
             </ThemedText>
           </View>
         </View>
@@ -326,7 +339,7 @@ function ProductSummary({
         variant="bodySmall"
         style={{ color: theme.colors.colorTextSecondary }}
       >
-        {description} Rich in natural goodness, delivered fresh before 7 AM.
+        {t("productDetails.productDescription", { description })}
       </ThemedText>
     </View>
   );
@@ -334,6 +347,7 @@ function ProductSummary({
 
 function TrialPack({ price }: { price: number }) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [trial, setTrial] = useState<"three" | "seven">("three");
   return (
     <View style={{ gap: theme.spacing.sm }}>
@@ -342,21 +356,21 @@ function TrialPack({ price }: { price: number }) {
         weight="semibold"
         style={{ color: theme.colors.colorTextSecondary }}
       >
-        CHOOSE TRIAL PLAN
+        {t("productDetails.trialLabel")}
       </ThemedText>
       <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
         <PlanOption
           active={trial === "three"}
-          title="3-Day Trial"
-          description="Quick taste · 3 bottles"
+          title={t("productDetails.threeDayTrial")}
+          description={t("productDetails.threeDayDetail")}
           value={"₹" + price * 3}
           onPress={() => setTrial("three")}
         />
         <PlanOption
           active={trial === "seven"}
-          badges={["10% OFF", "MOST POPULAR"]}
-          description="Daily morning delivery"
-          title="7-Day Trial"
+          badges={[t("productDetails.discount")]}
+          description={t("productDetails.sevenDayDetail")}
+          title={t("productDetails.sevenDayTrial")}
           value={"₹" + price * 7}
           onPress={() => setTrial("seven")}
         />
@@ -365,183 +379,9 @@ function TrialPack({ price }: { price: number }) {
   );
 }
 
-function SubscriptionOptions() {
-  const theme = useTheme();
-  const [frequency, setFrequency] = useState<"daily" | "alternate">("daily");
-  const [duration, setDuration] = useState<"one" | "until" | "two">("one");
-  return (
-    <View
-      style={{
-        gap: theme.spacing.sm,
-        padding: theme.spacing.sm,
-        borderRadius: theme.radii.lg,
-        backgroundColor: theme.colors.colorSurfaceMuted,
-      }}
-    >
-      <ThemedText
-        variant="caption"
-        weight="semibold"
-        style={{ color: theme.colors.colorTextSecondary }}
-      >
-        DELIVERY FREQUENCY
-      </ThemedText>
-      <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
-        <Pressable
-          accessibilityRole="radio"
-          accessibilityState={{ selected: frequency === "daily" }}
-          onPress={() => setFrequency("daily")}
-          style={{
-            flex: 1,
-            minHeight: theme.layout.touchTargetMin,
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: theme.radii.md,
-            borderWidth:
-              frequency === "daily"
-                ? theme.borderWidths.medium
-                : theme.borderWidths.hairline,
-            borderColor:
-              frequency === "daily"
-                ? theme.colors.colorPrimary
-                : theme.colors.colorBorder,
-            backgroundColor: theme.colors.colorSurface,
-          }}
-        >
-          <ThemedText variant="caption" weight="semibold">
-            Daily
-          </ThemedText>
-        </Pressable>
-        <Pressable
-          accessibilityRole="radio"
-          accessibilityState={{ selected: frequency === "alternate" }}
-          onPress={() => setFrequency("alternate")}
-          style={{
-            flex: 1,
-            minHeight: theme.layout.touchTargetMin,
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: theme.radii.md,
-            borderWidth:
-              frequency === "alternate"
-                ? theme.borderWidths.medium
-                : theme.borderWidths.hairline,
-            borderColor:
-              frequency === "alternate"
-                ? theme.colors.colorPrimary
-                : theme.colors.colorBorder,
-            backgroundColor: theme.colors.colorSurface,
-          }}
-        >
-          <ThemedText variant="caption" weight="semibold">
-            Alternate days
-          </ThemedText>
-        </Pressable>
-      </View>
-      <View style={{ gap: theme.spacing.xs }}>
-        <ThemedText
-          variant="caption"
-          weight="semibold"
-          style={{ color: theme.colors.colorTextSecondary }}
-        >
-          ACTIVE DELIVERY DAYS
-        </ThemedText>
-        <View style={{ flexDirection: "row", gap: theme.spacing.xs }}>
-          {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
-            <View
-              key={day + index}
-              style={{
-                flex: 1,
-                minHeight: theme.layout.touchTargetMin,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: theme.radii.md,
-                backgroundColor: theme.colors.colorPrimary,
-              }}
-            >
-              <ThemedText
-                variant="badgeLabel"
-                weight="semibold"
-                style={{ color: theme.colors.colorTextInverse }}
-              >
-                {day}
-              </ThemedText>
-            </View>
-          ))}
-        </View>
-      </View>
-      <View style={{ gap: theme.spacing.xs }}>
-        <ThemedText
-          variant="caption"
-          weight="semibold"
-          style={{ color: theme.colors.colorTextSecondary }}
-        >
-          SUBSCRIPTION DURATION
-        </ThemedText>
-        <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
-          <DurationOption
-            active={duration === "one"}
-            label="1 Month"
-            onPress={() => setDuration("one")}
-          />
-          <DurationOption
-            active={duration === "until"}
-            label="Until Pause"
-            onPress={() => setDuration("until")}
-          />
-          <DurationOption
-            active={duration === "two"}
-            label="2 Weeks"
-            onPress={() => setDuration("two")}
-          />
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function DurationOption({
-  active,
-  label,
-  onPress,
-}: {
-  active: boolean;
-  label: string;
-  onPress: () => void;
-}) {
-  const theme = useTheme();
-  return (
-    <Pressable
-      accessibilityRole="radio"
-      accessibilityState={{ selected: active }}
-      onPress={onPress}
-      style={{
-        flex: 1,
-        minHeight: theme.layout.touchTargetMin,
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: theme.radii.md,
-        borderWidth: active
-          ? theme.borderWidths.medium
-          : theme.borderWidths.hairline,
-        borderColor: active
-          ? theme.colors.colorPrimary
-          : theme.colors.colorBorder,
-        backgroundColor: theme.colors.colorSurface,
-      }}
-    >
-      <ThemedText
-        variant="caption"
-        weight="semibold"
-        style={{ textAlign: "center" }}
-      >
-        {label}
-      </ThemedText>
-    </Pressable>
-  );
-}
-
 function DeliveryDate() {
   const theme = useTheme();
+  const { t } = useTranslation();
   return (
     <View
       style={{
@@ -567,7 +407,7 @@ function DeliveryDate() {
       >
         <AppIcon
           icon={CalendarIcon}
-          accessibilityLabel="Delivery date"
+          accessibilityLabel={t("productDetails.deliveryDate")}
           size="sm"
         />
       </View>
@@ -576,10 +416,10 @@ function DeliveryDate() {
           variant="caption"
           style={{ color: theme.colors.colorTextSecondary }}
         >
-          DELIVERY DATE
+          {t("productDetails.deliveryDate")}
         </ThemedText>
         <ThemedText variant="body" weight="semibold">
-          Tomorrow, 25 Oct
+          {t("productDetails.tomorrow")}
         </ThemedText>
       </View>
       <View
@@ -591,7 +431,7 @@ function DeliveryDate() {
         }}
       >
         <ThemedText variant="caption" weight="semibold">
-          Before 7:00 AM
+          {t("productDetails.beforeSeven")}
         </ThemedText>
       </View>
     </View>
@@ -626,12 +466,12 @@ function PlanOption({
         padding: theme.spacing.md,
         borderRadius: theme.radii.lg,
         borderWidth: active
-          ? theme.borderWidths.medium
+          ? theme.borderWidths.none
           : theme.borderWidths.hairline,
-        borderColor: active
-          ? theme.colors.colorPrimary
-          : theme.colors.colorBorder,
-        backgroundColor: theme.colors.colorSurface,
+        borderColor: theme.colors.colorBorder,
+        backgroundColor: active
+          ? theme.colors.colorPrimaryTint
+          : theme.colors.colorSurface,
       }}
     >
       {badges ? (
@@ -639,9 +479,11 @@ function PlanOption({
           style={{
             position: "absolute",
             top: -theme.spacing.sm,
-            left: theme.spacing.md,
+            left: 0,
+            right: 0,
             zIndex: theme.zIndex.card,
             flexDirection: "row",
+            justifyContent: "center",
             gap: theme.spacing.xs,
           }}
         >
@@ -649,7 +491,7 @@ function PlanOption({
             <View
               key={badge}
               style={{
-                paddingHorizontal: theme.spacing.xs,
+                paddingHorizontal: theme.spacing.sm,
                 borderRadius: theme.radii.pill,
                 backgroundColor:
                   index === 0
@@ -658,7 +500,7 @@ function PlanOption({
               }}
             >
               <ThemedText
-                variant="caption"
+                variant="badgeLabel"
                 weight="semibold"
                 style={{ color: theme.colors.colorTextInverse }}
               >
@@ -668,12 +510,18 @@ function PlanOption({
           ))}
         </View>
       ) : null}
-      <ThemedText variant="bodySmall" weight="semibold">
+      <ThemedText
+        variant="bodySmall"
+        weight="semibold"
+        style={{ color: theme.colors.colorTextPrimary }}
+      >
         {title}
       </ThemedText>
       <ThemedText
         variant="caption"
-        style={{ color: theme.colors.colorTextSecondary }}
+        style={{
+          color: theme.colors.colorTextSecondary,
+        }}
       >
         {description}
       </ThemedText>
@@ -683,7 +531,11 @@ function PlanOption({
           backgroundColor: theme.colors.colorBorder,
         }}
       />
-      <ThemedText variant="body" weight="bold">
+      <ThemedText
+        variant="body"
+        weight="bold"
+        style={{ color: theme.colors.colorTextPrimary }}
+      >
         {value}
       </ThemedText>
     </Pressable>

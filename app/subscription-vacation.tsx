@@ -1,67 +1,78 @@
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { useState } from "react";
-import { Pressable, StatusBar, View } from "react-native";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Animated, Pressable, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppIcon } from "../src/components/atoms/AppIcon";
 import { Button } from "../src/components/atoms/Button";
 import { ThemedText } from "../src/components/atoms/ThemedText";
-import { BackIcon, CalendarIcon } from "../src/icons/appIcons";
+import { BackIcon } from "../src/icons/appIcons";
 import { useTheme } from "../src/theme";
+import { useAppStore } from "../src/store/useAppStore";
+import { useDeliveryCalendar } from "../src/hooks/useDeliveryCalendar";
 
 type Step = "products" | "dates" | "success";
 type DateField = "pause" | "resume";
 
 const subscriptions = [
   {
-    id: "a2",
-    name: "A2 Desi Gir Cow Milk",
-    detail: "1L glass bottle • Daily morning",
-    imageUrl:
-      "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=200&q=80",
+    id: "a2-cow-milk",
+    nameKey: "a2Milk",
+    detailKey: "milkDaily",
+    imageUrl: undefined,
   },
   {
-    id: "buffalo",
-    name: "Farm Fresh Buffalo Milk",
-    detail: "1L glass bottle • Daily morning",
-    imageUrl:
-      "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=200&q=80&sat=-20",
+    id: "buffalo-milk",
+    nameKey: "buffaloMilk",
+    detailKey: "milkDaily",
+    imageUrl: undefined,
   },
   {
-    id: "dahi",
-    name: "Organic Set Dahi",
-    detail: "500g clay pot • Alternate days",
-    imageUrl:
-      "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=200&q=80",
+    id: "premium-curd",
+    nameKey: "dahi",
+    detailKey: "dahiAlternate",
+    imageUrl: undefined,
   },
 ];
 
-const calendarWeeks = [
-  ["21 Oct", "22 Oct", "23 Oct", "24 Oct", "25 Oct", "26 Oct", "27 Oct"],
-  ["28 Oct", "29 Oct", "30 Oct", "31 Oct", "01 Nov", "02 Nov", "03 Nov"],
-  ["04 Nov", "05 Nov", "06 Nov", "07 Nov", "08 Nov", "09 Nov", "10 Nov"],
-];
+const localDateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+const calendarStart = new Date();
+calendarStart.setHours(12, 0, 0, 0);
+calendarStart.setDate(calendarStart.getDate() - ((calendarStart.getDay() + 6) % 7));
+const calendarWeeks = Array.from({ length: 3 }, (_, week) => Array.from({ length: 7 }, (_, day) => {
+  const date = new Date(calendarStart);
+  date.setDate(calendarStart.getDate() + week * 7 + day);
+  return localDateKey(date);
+}));
 
 const calendarDates = calendarWeeks.flat().filter((date) => date.length > 0);
 
 export default function SubscriptionVacationScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [step, setStep] = useState<Step>("products");
-  const [selectedIds, setSelectedIds] = useState<string[]>(["a2", "buffalo"]);
+  const [selectedIds, setSelectedIds] = useState<string[]>(["a2-cow-milk", "buffalo-milk"]);
   const [activeDateField, setActiveDateField] = useState<DateField>("pause");
-  const [pauseDate, setPauseDate] = useState("27 Oct");
-  const [resumeDate, setResumeDate] = useState("06 Nov");
+  const [pauseDate, setPauseDate] = useState(calendarWeeks[0][Math.min(6, (new Date().getDay() + 6) % 7)]);
+  const [resumeDate, setResumeDate] = useState(calendarWeeks[2][0]);
+  const setVacationPause = useAppStore((state) => state.setVacationPause);
+  const setDeliveryState = useAppStore((state) => state.setDeliveryState);
+  const { data: deliveries = [] } = useDeliveryCalendar();
+  const duration = calendarDates.indexOf(resumeDate) - calendarDates.indexOf(pauseDate);
 
   const toggleSubscription = (id: string) =>
     setSelectedIds((items) =>
       items.includes(id) ? items.filter((item) => item !== id) : [...items, id],
     );
   const selectDate = (date: string) => {
+    if (date < localDateKey(new Date())) return;
     if (activeDateField === "pause") {
       setPauseDate(date);
+      if (date >= resumeDate) setResumeDate(calendarDates[Math.min(calendarDates.indexOf(date) + 1, calendarDates.length - 1)]);
       setActiveDateField("resume");
-    } else setResumeDate(date);
+    } else if (date > pauseDate) setResumeDate(date);
   };
 
   return (
@@ -117,17 +128,17 @@ export default function SubscriptionVacationScreen() {
               disabled={selectedIds.length === 0}
               onPress={() => setStep("dates")}
             >
-              Continue to dates →
+              {t("subscriptionVacation.continueDates")} →
             </Button>
           ) : null}
           {step === "dates" ? (
-            <Button onPress={() => setStep("success")}>
-              Confirm vacation (10 days)
+            <Button disabled={duration <= 0} onPress={() => { setVacationPause({ subscriptionIds: selectedIds, from: pauseDate, resumeOn: resumeDate }); if (selectedIds.includes("a2-cow-milk")) deliveries.filter((delivery) => delivery.date >= pauseDate && delivery.date < resumeDate).forEach((delivery) => setDeliveryState(delivery.id, "paused")); setStep("success"); }}>
+              {t("subscriptionVacation.confirmDays", { count: duration })}
             </Button>
           ) : null}
           {step === "success" ? (
             <Button onPress={() => router.replace("/subscriptions")}>
-              Back to subscriptions
+              {t("subscriptionVacation.backToSubscriptions")}
             </Button>
           ) : null}
         </View>
@@ -138,6 +149,7 @@ export default function SubscriptionVacationScreen() {
 
 function Header({ onBack, step }: { onBack: () => void; step: Step }) {
   const theme = useTheme();
+  const { t } = useTranslation();
   return (
     <View
       style={{
@@ -152,13 +164,13 @@ function Header({ onBack, step }: { onBack: () => void; step: Step }) {
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Back"
+        accessibilityLabel={t("subscriptionVacation.back")}
         onPress={onBack}
       >
         <AppIcon icon={BackIcon} accessibilityLabel="" size="md" />
       </Pressable>
       <ThemedText variant="body" weight="semibold">
-        {step === "success" ? "Vacation confirmed" : "Set Vacation"}
+        {step === "success" ? t("subscriptionVacation.confirmedTitle") : t("subscriptionVacation.title")}
       </ThemedText>
       <ThemedText variant="body">?</ThemedText>
     </View>
@@ -167,6 +179,7 @@ function Header({ onBack, step }: { onBack: () => void; step: Step }) {
 
 function Progress({ step }: { step: Step }) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const current = step === "products" ? 1 : step === "dates" ? 2 : 3;
   return (
     <View style={{ gap: theme.spacing.sm }}>
@@ -175,7 +188,7 @@ function Progress({ step }: { step: Step }) {
         weight="semibold"
         style={{ color: theme.colors.colorTextSecondary }}
       >
-        STEP {current} OF 3
+        {t("subscriptionVacation.step", { current })}
       </ThemedText>
       <View style={{ flexDirection: "row", gap: theme.spacing.xs }}>
         {[1, 2, 3].map((item) => (
@@ -205,17 +218,18 @@ function SelectProducts({
   selectedIds: string[];
 }) {
   const theme = useTheme();
+  const { t } = useTranslation();
   return (
     <>
       <View style={{ gap: theme.spacing.xs }}>
         <ThemedText variant="body" weight="semibold">
-          Pause deliveries
+          {t("subscriptionVacation.pauseDeliveries")}
         </ThemedText>
         <ThemedText
           variant="bodySmall"
           style={{ color: theme.colors.colorTextSecondary }}
         >
-          Choose the subscriptions to pause while you are travelling.
+          {t("subscriptionVacation.pauseDetail")}
         </ThemedText>
       </View>
       <View style={{ gap: theme.spacing.sm }}>
@@ -242,18 +256,18 @@ function SelectProducts({
             />
             <View style={{ flex: 1 }}>
               <ThemedText variant="bodySmall" weight="semibold">
-                {subscription.name}
+                {t(`subscriptionVacation.${subscription.nameKey}`)}
               </ThemedText>
               <ThemedText
                 variant="caption"
                 style={{ color: theme.colors.colorTextSecondary }}
               >
-                {subscription.detail}
+                {t(`subscriptionVacation.${subscription.detailKey}`)}
               </ThemedText>
             </View>
             <Pressable
               accessibilityRole="switch"
-              accessibilityLabel={`Pause ${subscription.name}`}
+              accessibilityLabel={t("subscriptionVacation.pauseProduct", { product: t(`subscriptionVacation.${subscription.nameKey}`) })}
               accessibilityState={{
                 checked: selectedIds.includes(subscription.id),
               }}
@@ -303,29 +317,35 @@ function SelectDates({
   resumeDate: string;
 }) {
   const theme = useTheme();
+  const { t, i18n } = useTranslation();
+  const [selectionScale] = useState(() => new Animated.Value(1));
+  useEffect(() => {
+    selectionScale.setValue(0.86);
+    Animated.spring(selectionScale, { toValue: 1, damping: 16, stiffness: 260, mass: 0.7, useNativeDriver: true }).start();
+  }, [pauseDate, resumeDate, selectionScale]);
   return (
     <>
       <View style={{ gap: theme.spacing.xs }}>
         <ThemedText variant="body" weight="semibold">
-          Select pause dates
+          {t("subscriptionVacation.selectDates")}
         </ThemedText>
         <ThemedText
           variant="bodySmall"
           style={{ color: theme.colors.colorTextSecondary }}
         >
-          Choose when deliveries pause and automatically resume.
+          {t("subscriptionVacation.selectDatesDetail")}
         </ThemedText>
       </View>
       <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
         <DateCard
           active={activeField === "pause"}
-          label="PAUSE FROM"
+          label={t("subscriptionVacation.pauseFrom")}
           value={pauseDate}
           onPress={() => onFieldChange("pause")}
         />
         <DateCard
           active={activeField === "resume"}
-          label="RESUME ON"
+          label={t("subscriptionVacation.resumeOn")}
           value={resumeDate}
           onPress={() => onFieldChange("resume")}
         />
@@ -353,7 +373,7 @@ function SelectDates({
             }}
           >
             <ThemedText variant="bodySmall" weight="semibold">
-              October – November
+              {new Date(`${calendarDates[0]}T12:00:00`).toLocaleDateString(i18n.language, { month: "long" })} – {new Date(`${calendarDates[calendarDates.length - 1]}T12:00:00`).toLocaleDateString(i18n.language, { month: "long" })}
             </ThemedText>
             <View
               style={{
@@ -367,41 +387,15 @@ function SelectDates({
                 variant="caption"
                 style={{ color: theme.colors.colorTextSecondary }}
               >
-                2024
+                {new Date(`${calendarDates[0]}T12:00:00`).getFullYear()}
               </ThemedText>
-            </View>
-          </View>
-          <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
-            <View
-              style={{
-                width: theme.sizes.avatarSm,
-                height: theme.sizes.avatarSm,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: theme.radii.pill,
-                backgroundColor: theme.colors.colorSurfaceMuted,
-              }}
-            >
-              <ThemedText variant="bodySmall">‹</ThemedText>
-            </View>
-            <View
-              style={{
-                width: theme.sizes.avatarSm,
-                height: theme.sizes.avatarSm,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: theme.radii.pill,
-                backgroundColor: theme.colors.colorSurfaceMuted,
-              }}
-            >
-              <ThemedText variant="bodySmall">›</ThemedText>
             </View>
           </View>
         </View>
         <View style={{ flexDirection: "row" }}>
-          {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
+          {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((day) => (
             <View
-              key={`${day}-${index}`}
+              key={day}
               style={{
                 flex: 1,
                 alignItems: "center",
@@ -413,7 +407,7 @@ function SelectDates({
                 weight="semibold"
                 style={{ color: theme.colors.colorTextSecondary }}
               >
-                {day}
+                {t(`calendar.${day}`)}
               </ThemedText>
             </View>
           ))}
@@ -438,7 +432,7 @@ function SelectDates({
                 return (
                   <Pressable
                     key={`${weekIndex}-${dayIndex}`}
-                    disabled={!date}
+                    disabled={date < localDateKey(new Date())}
                     accessibilityRole="button"
                     accessibilityState={{ selected: endpoint }}
                     onPress={() => onDateSelect(date)}
@@ -447,13 +441,13 @@ function SelectDates({
                       height: theme.sizes.avatarSm,
                       alignItems: "center",
                       justifyContent: "center",
-                      backgroundColor: range
+                      backgroundColor: range && !endpoint
                         ? theme.colors.colorPrimaryTint
                         : theme.colors.colorTransparent,
                     }}
                   >
                     {date ? (
-                      <View
+                      <Animated.View
                         style={{
                           width: theme.sizes.avatarSm,
                           height: theme.sizes.avatarSm,
@@ -465,6 +459,7 @@ function SelectDates({
                             : isResume
                               ? theme.colors.colorSurfaceMuted
                               : theme.colors.colorTransparent,
+                          transform: endpoint ? [{ scale: selectionScale }] : undefined,
                         }}
                       >
                         <ThemedText
@@ -476,11 +471,11 @@ function SelectDates({
                               : isBeforePause
                                 ? theme.colors.colorTextDisabled
                                 : theme.colors.colorTextPrimary,
-                          }}
+                        }}
                         >
-                          {date.split(" ")[0]}
+                          {new Date(`${date}T12:00:00`).getDate()}
                         </ThemedText>
-                      </View>
+                      </Animated.View>
                     ) : null}
                   </Pressable>
                 );
@@ -499,13 +494,13 @@ function SelectDates({
             variant="caption"
             style={{ color: theme.colors.colorTextSecondary }}
           >
-            ● Vacation range
+            ● {t("subscriptionVacation.vacationRange")}
           </ThemedText>
           <ThemedText
             variant="caption"
             style={{ color: theme.colors.colorTextSecondary }}
           >
-            ● Deliveries resume ({resumeDate})
+            ● {t("subscriptionVacation.deliveriesResume", { date: resumeDate })}
           </ThemedText>
         </View>
       </View>
@@ -519,10 +514,10 @@ function SelectDates({
         }}
       >
         <ThemedText variant="bodySmall" weight="semibold">
-          Total pause duration
+          {t("subscriptionVacation.totalDuration")}
         </ThemedText>
         <ThemedText variant="bodySmall" weight="semibold">
-          10 Days
+          {t("subscriptionVacation.durationDays", { count: calendarDates.indexOf(resumeDate) - calendarDates.indexOf(pauseDate) })}
         </ThemedText>
       </View>
       <InfoCard />
@@ -542,6 +537,7 @@ function DateCard({
   value: string;
 }) {
   const theme = useTheme();
+  const { t, i18n } = useTranslation();
   return (
     <Pressable
       accessibilityRole="button"
@@ -569,13 +565,13 @@ function DateCard({
         {label}
       </ThemedText>
       <ThemedText variant="bodySmall" weight="semibold">
-        {value}
+        {new Date(`${value}T12:00:00`).toLocaleDateString(i18n.language, { day: "numeric", month: "short", year: "numeric" })}
       </ThemedText>
       <ThemedText
         variant="caption"
         style={{ color: theme.colors.colorTextSecondary }}
       >
-        {active ? "Selecting" : "Tap to edit"}
+        {active ? t("subscriptionVacation.selecting") : t("subscriptionVacation.tapEdit")}
       </ThemedText>
     </Pressable>
   );
@@ -583,6 +579,7 @@ function DateCard({
 
 function InfoCard() {
   const theme = useTheme();
+  const { t } = useTranslation();
   return (
     <View
       style={{
@@ -593,14 +590,13 @@ function InfoCard() {
       }}
     >
       <ThemedText variant="bodySmall" weight="semibold">
-        Zero Billing Guarantee
+        {t("subscriptionVacation.guaranteeTitle")}
       </ThemedText>
       <ThemedText
         variant="caption"
         style={{ color: theme.colors.colorTextSecondary }}
       >
-        No charges for paused days. Unused wallet balances remain untouched and
-        billing automatically adjusts.
+        {t("subscriptionVacation.guaranteeDetail")}
       </ThemedText>
     </View>
   );
@@ -614,6 +610,7 @@ function SuccessState({
   resumeDate: string;
 }) {
   const theme = useTheme();
+  const { t } = useTranslation();
   return (
     <View
       style={{
@@ -640,13 +637,12 @@ function SuccessState({
           ✓
         </ThemedText>
       </View>
-      <ThemedText variant="h2">Vacation pause is set</ThemedText>
+      <ThemedText variant="h2">{t("subscriptionVacation.successTitle")}</ThemedText>
       <ThemedText
         variant="bodySmall"
         style={{ color: theme.colors.colorTextSecondary, textAlign: "center" }}
       >
-        Your selected deliveries pause from {pauseDate} and resume automatically
-        on {resumeDate}.
+        {t("subscriptionVacation.successDetail", { pauseDate, resumeDate })}
       </ThemedText>
     </View>
   );

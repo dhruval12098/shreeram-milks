@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { memo, useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -26,47 +27,40 @@ type Tab = "active" | "paused" | "ended";
 
 interface Subscription {
   id: string;
-  imageUrl: string;
-  name: string;
-  nextDelivery: string;
+  nameKey: string;
+  nextDeliveryKey: string;
   price: number;
-  tag: string;
+  tagKey: "subscription" | "trial";
 }
 
 const activeSubscriptions: Subscription[] = [
   {
     id: "a2-cow-milk",
-    name: "A2 Desi Gir Cow Milk",
-    tag: "Daily Subscription",
-    nextDelivery: "Tomorrow, 25 Oct",
+    nameKey: "subscriptionVacation.a2Milk",
+    tagKey: "subscription",
+    nextDeliveryKey: "subscriptionManage.nextDeliveryValue",
     price: 85,
-    imageUrl:
-      "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=500&q=80",
   },
   {
     id: "buffalo-milk",
-    name: "Farm Fresh Buffalo Milk",
-    tag: "Daily Subscription",
-    nextDelivery: "Tomorrow, 25 Oct",
+    nameKey: "subscriptionVacation.buffaloMilk",
+    tagKey: "subscription",
+    nextDeliveryKey: "subscriptionManage.nextDeliveryValue",
     price: 95,
-    imageUrl:
-      "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=500&q=80&sat=-20",
   },
   {
     id: "premium-curd",
-    name: "Organic Set Dahi (Clay Pot)",
-    tag: "Trial Pack",
-    nextDelivery: "Thu, 26 Oct",
+    nameKey: "subscriptionsManage.premiumCurd",
+    tagKey: "trial",
+    nextDeliveryKey: "subscriptionsManage.thursdayDelivery",
     price: 65,
-    imageUrl:
-      "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=500&q=80",
   },
 ];
 
-const tabLabels: { key: Tab; label: string }[] = [
-  { key: "active", label: "Active (3)" },
-  { key: "paused", label: "Paused (0)" },
-  { key: "ended", label: "Ended" },
+const tabLabels: { key: Tab; labelKey: string }[] = [
+  { key: "active", labelKey: "subscriptions.tabs.active" },
+  { key: "paused", labelKey: "subscriptions.tabs.paused" },
+  { key: "ended", labelKey: "subscriptions.tabs.ended" },
 ];
 
 const SubscriptionCard = memo(function SubscriptionCard({
@@ -75,6 +69,10 @@ const SubscriptionCard = memo(function SubscriptionCard({
   subscription: Subscription;
 }) {
   const theme = useTheme();
+  const { t } = useTranslation();
+  const [skipped, setSkipped] = useState(false);
+  const name = t(subscription.nameKey);
+  const tag = t(`purchasePlans.${subscription.tagKey === "trial" ? "trial" : "subscription"}`);
   return (
     <View
       style={[
@@ -104,7 +102,7 @@ const SubscriptionCard = memo(function SubscriptionCard({
           }}
         >
           <Image
-            source={{ uri: subscription.imageUrl }}
+            source={require("../assets/onboarding-milk-hero.png")}
             contentFit="cover"
             transition={theme.motion.duration.normal}
             style={{ width: "100%", height: "100%" }}
@@ -118,7 +116,7 @@ const SubscriptionCard = memo(function SubscriptionCard({
               paddingHorizontal: theme.spacing.sm,
               paddingVertical: theme.spacing.xs,
               backgroundColor:
-                subscription.tag === "Trial Pack"
+                subscription.tagKey === "trial"
                   ? theme.colors.colorSurfaceMuted
                   : theme.colors.colorPrimaryTint,
             }}
@@ -128,22 +126,22 @@ const SubscriptionCard = memo(function SubscriptionCard({
               weight="semibold"
               style={{
                 color:
-                  subscription.tag === "Trial Pack"
+                  subscription.tagKey === "trial"
                     ? theme.colors.colorTextSecondary
                     : theme.colors.colorPrimary,
               }}
             >
-              ● {subscription.tag}
+              ● {tag}
             </ThemedText>
           </View>
           <ThemedText variant="body" weight="semibold" numberOfLines={2}>
-            {subscription.name}
+            {name}
           </ThemedText>
           <ThemedText
             variant="caption"
             style={{ color: theme.colors.colorTextSecondary }}
           >
-            ▣ Next delivery: {subscription.nextDelivery}
+            ▣ {skipped ? t("subscriptionsManage.skipped") : t("subscriptionsManage.nextDelivery", { date: t(subscription.nextDeliveryKey) })}
           </ThemedText>
         </View>
       </View>
@@ -159,7 +157,7 @@ const SubscriptionCard = memo(function SubscriptionCard({
             variant="caption"
             style={{ color: theme.colors.colorTextSecondary }}
           >
-            Plan Price
+            {t("subscriptionsManage.planPrice")}
           </ThemedText>
           <ThemedText variant="body" weight="semibold">
             ₹{subscription.price}
@@ -168,14 +166,15 @@ const SubscriptionCard = memo(function SubscriptionCard({
               style={{ color: theme.colors.colorTextSecondary }}
             >
               {" "}
-              / day
+              {t("subscriptionsManage.perDay")}
             </ThemedText>
           </ThemedText>
         </View>
         <View style={{ flex: 1, flexDirection: "row", gap: theme.spacing.sm }}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Skip ${subscription.name}`}
+            accessibilityLabel={t("subscriptionsManage.skip", { product: name })}
+            onPress={() => setSkipped((current) => !current)}
             style={{
               flex: 1,
               minHeight: theme.layout.touchTargetMin,
@@ -187,12 +186,12 @@ const SubscriptionCard = memo(function SubscriptionCard({
             }}
           >
             <ThemedText variant="caption" weight="semibold">
-              Skip Next
+              {t("subscriptionsManage.skipNext")}
             </ThemedText>
           </Pressable>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Manage ${subscription.name}`}
+            accessibilityLabel={t("subscriptionsManage.manage", { product: name })}
             onPress={() => router.push("/subscription-manage")}
             style={{
               flex: 1,
@@ -209,7 +208,7 @@ const SubscriptionCard = memo(function SubscriptionCard({
               weight="semibold"
               style={{ color: theme.colors.colorTextInverse }}
             >
-              Manage
+              {t("subscriptionsManage.manageLabel")}
             </ThemedText>
           </Pressable>
         </View>
@@ -220,6 +219,7 @@ const SubscriptionCard = memo(function SubscriptionCard({
 
 function EmptySubscriptions({ products }: { products: Product[] }) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const cart = useAppStore((state) => state.cart);
   const addToCart = useAppStore((state) => state.addToCart);
   const dailyProducts = useMemo(() => products.slice(0, 2), [products]);
@@ -247,11 +247,11 @@ function EmptySubscriptions({ products }: { products: Product[] }) {
         >
           <AppIcon
             icon={ProductsIcon}
-            accessibilityLabel="Milk bottle"
+            accessibilityLabel={t("subscriptions.emptyIcon")}
             size="lg"
           />
         </View>
-        <ThemedText variant="h2">No subscriptions yet</ThemedText>
+        <ThemedText variant="h2">{t("subscriptions.emptyTitle")}</ThemedText>
         <ThemedText
           variant="bodySmall"
           style={{
@@ -259,11 +259,10 @@ function EmptySubscriptions({ products }: { products: Product[] }) {
             textAlign: "center",
           }}
         >
-          Start a daily or alternate-day subscription to get farm-fresh A2 milk
-          delivered to your doorstep every sunrise.
+          {t("subscriptions.emptyDetail")}
         </ThemedText>
         <Button onPress={() => router.push("/products")}>
-          Browse Products →
+          {t("subscriptions.browse")}
         </Button>
       </View>
       <View
@@ -275,7 +274,7 @@ function EmptySubscriptions({ products }: { products: Product[] }) {
         }}
       >
         <ThemedText variant="bodySmall" weight="semibold">
-          Subscription Perks
+          {t("subscriptions.perks")}
         </ThemedText>
         <View
           style={{
@@ -293,7 +292,7 @@ function EmptySubscriptions({ products }: { products: Product[] }) {
               backgroundColor: theme.colors.colorSurfaceMuted,
             }}
           >
-            ▣ Zero delivery fees
+            {t("subscriptions.perkDelivery")}
           </ThemedText>
           <ThemedText
             variant="caption"
@@ -304,7 +303,7 @@ function EmptySubscriptions({ products }: { products: Product[] }) {
               backgroundColor: theme.colors.colorSurfaceMuted,
             }}
           >
-            Ⅱ Pause anytime
+            {t("subscriptions.perkPause")}
           </ThemedText>
           <ThemedText
             variant="caption"
@@ -315,7 +314,7 @@ function EmptySubscriptions({ products }: { products: Product[] }) {
               backgroundColor: theme.colors.colorSurfaceMuted,
             }}
           >
-            ♻ Free glass bottle swaps
+            {t("subscriptions.perkBottles")}
           </ThemedText>
         </View>
       </View>
@@ -328,7 +327,7 @@ function EmptySubscriptions({ products }: { products: Product[] }) {
           }}
         >
           <ThemedText variant="body" weight="semibold">
-            Popular Delivery
+            {t("subscriptions.popular")}
           </ThemedText>
           <Pressable onPress={() => router.push("/products")}>
             <ThemedText
@@ -336,7 +335,7 @@ function EmptySubscriptions({ products }: { products: Product[] }) {
               weight="semibold"
               style={{ color: theme.colors.colorPrimary }}
             >
-              View All
+              {t("home.seeAll")}
             </ThemedText>
           </Pressable>
         </View>
@@ -347,7 +346,7 @@ function EmptySubscriptions({ products }: { products: Product[] }) {
               product={product}
               isAdded={cart.some((item) => item.product.id === product.id)}
               onAdd={() => addToCart(product)}
-              onPress={() => undefined}
+              onPress={(productId) => router.push({ pathname: "/product-details", params: { productId } })}
             />
           ))}
         </View>
@@ -358,10 +357,14 @@ function EmptySubscriptions({ products }: { products: Product[] }) {
 
 export default function SubscriptionsScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { data: products = [] } = useProducts();
   const [tab, setTab] = useState<Tab>("active");
-  const [showEmpty, setShowEmpty] = useState(false);
-  const data = tab === "active" && !showEmpty ? activeSubscriptions : [];
+  const vacationPause = useAppStore((state) => state.vacationPause);
+  const now = new Date();
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const pausedIds = vacationPause && todayKey >= vacationPause.from && todayKey < vacationPause.resumeOn ? vacationPause.subscriptionIds : [];
+  const data = tab === "active" ? activeSubscriptions.filter((item) => !pausedIds.includes(item.id)) : tab === "paused" ? activeSubscriptions.filter((item) => pausedIds.includes(item.id)) : [];
   const renderItem = useCallback(
     ({ item }: { item: Subscription }) => (
       <SubscriptionCard subscription={item} />
@@ -384,10 +387,11 @@ export default function SubscriptionsScreen() {
             backgroundColor: theme.colors.colorBackground,
           }}
         >
-          <ThemedText variant="h1">Subscriptions</ThemedText>
+          <ThemedText variant="h1">{t("subscriptions.title")}</ThemedText>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Notifications"
+            accessibilityLabel={t("home.notifications")}
+            onPress={() => router.push("/settings")}
             style={{
               width: theme.layout.touchTargetMin,
               height: theme.layout.touchTargetMin,
@@ -425,7 +429,6 @@ export default function SubscriptionsScreen() {
                     accessibilityState={{ selected: tab === item.key }}
                     onPress={() => {
                       setTab(item.key);
-                      setShowEmpty(item.key !== "active");
                     }}
                     style={{
                       flex: 1,
@@ -449,7 +452,7 @@ export default function SubscriptionsScreen() {
                             : theme.colors.colorTextSecondary,
                       }}
                     >
-                      {item.label}
+                      {t(item.labelKey)}
                     </ThemedText>
                   </Pressable>
                 ))}
@@ -480,7 +483,7 @@ export default function SubscriptionsScreen() {
                     >
                       <AppIcon
                         icon={CalendarIcon}
-                        accessibilityLabel="Vacation pause"
+                        accessibilityLabel={t("subscriptions.pause")}
                         tone="onPrimary"
                         size="sm"
                       />
@@ -491,13 +494,13 @@ export default function SubscriptionsScreen() {
                         weight="semibold"
                         style={{ color: theme.colors.colorTextInverse }}
                       >
-                        Going away soon?
+                        {t("subscriptions.awayTitle")}
                       </ThemedText>
                       <ThemedText
                         variant="caption"
                         style={{ color: theme.colors.colorPrimaryTint }}
                       >
-                        Set Vacation Pause anytime{`\n`}effortlessly
+                        {t("subscriptions.awayDetail")}
                       </ThemedText>
                     </View>
                     <View
@@ -509,7 +512,7 @@ export default function SubscriptionsScreen() {
                       }}
                     >
                       <ThemedText variant="caption" weight="semibold">
-                        Pause →
+                        {t("subscriptions.pause")}
                       </ThemedText>
                     </View>
                   </Pressable>
@@ -528,15 +531,15 @@ export default function SubscriptionsScreen() {
             if (key === "profile") router.replace("/profile");
           }}
           items={[
-            { key: "home", label: "Home", icon: HomeIcon },
-            { key: "products", label: "Products", icon: ProductsIcon },
+            { key: "home", label: t("navigation.home"), icon: HomeIcon },
+            { key: "products", label: t("navigation.products"), icon: ProductsIcon },
             {
               key: "subscriptions",
-              label: "Subscriptions",
+              label: t("navigation.subscriptions"),
               icon: CalendarIcon,
             },
-            { key: "cart", label: "Cart", icon: CartIcon },
-            { key: "profile", label: "Profile", icon: ProfileIcon },
+            { key: "cart", label: t("navigation.cart"), icon: CartIcon },
+            { key: "profile", label: t("navigation.profile"), icon: ProfileIcon },
           ]}
         />
       </View>

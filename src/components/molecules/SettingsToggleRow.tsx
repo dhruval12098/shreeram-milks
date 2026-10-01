@@ -48,11 +48,11 @@ export function SettingsToggleRow({
           <AppIcon icon={icon} accessibilityLabel="" tone="primary" size="sm" />
         </View>
         <View style={{ flex: 1, gap: theme.spacing.xs }}>
-          <ThemedText variant="body" weight="semibold">
+          <ThemedText variant="bodySmall" weight="semibold">
             {title}
           </ThemedText>
           <ThemedText
-            variant="bodySmall"
+            variant="caption"
             style={{ color: theme.colors.colorTextSecondary }}
           >
             {subtitle}

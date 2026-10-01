@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import { useRef } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -32,7 +32,7 @@ export function Button({
 }: PropsWithChildren<ButtonProps>) {
   const theme = useTheme();
   const isDisabled = disabled || loading;
-  const scale = useRef(new Animated.Value(1)).current;
+  const [scale] = useState(() => new Animated.Value(1));
   const backgroundColor =
     variant === "secondary"
       ? theme.colors.colorSurface

@@ -16,13 +16,13 @@ import {
   HomeIcon,
   InvoiceIcon,
   LocationIcon,
-  LogoutIcon,
   ProductsIcon,
   ProfileIcon,
   SettingsIcon,
   ShieldIcon,
 } from "../src/icons/appIcons";
 import { useTheme } from "../src/theme";
+import { useAppStore } from "../src/store/useAppStore";
 
 function ProfileSection({
   children,
@@ -62,6 +62,7 @@ function ProfileSection({
 export default function ProfileScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const profile = useAppStore((state) => state.profile);
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}
@@ -115,8 +116,7 @@ export default function ProfileScreen() {
           }}
         >
           <Avatar
-            imageUrl="https://images.unsplash.com/photo-1626193082710-a16206f819f2?auto=format&fit=crop&w=168&h=168&q=80"
-            initials="PS"
+            initials={profile.fullName.slice(0, 2).toUpperCase()}
             size="lg"
           />
           <View style={{ flex: 1, gap: theme.spacing.xs }}>
@@ -128,7 +128,7 @@ export default function ProfileScreen() {
               }}
             >
               <ThemedText variant="body" weight="bold">
-                {t("profile.customerName")}
+                {profile.fullName}
               </ThemedText>
               <Pressable accessibilityRole="button" accessibilityLabel={t("profile.editProfile")} hitSlop={theme.spacing.sm} onPress={() => router.push("/edit-profile")} style={{ width: theme.layout.touchTargetMin, height: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center" }}><AppIcon icon={EditIcon} accessibilityLabel="" size="sm" tone="secondary" /></Pressable>
             </View>
@@ -136,7 +136,7 @@ export default function ProfileScreen() {
               variant="bodySmall"
               style={{ color: theme.colors.colorTextSecondary }}
             >
-              {t("profile.phone")}
+              {profile.phone}
             </ThemedText>
           </View>
           <View
@@ -204,13 +204,6 @@ export default function ProfileScreen() {
             onPress={() => router.push("/help-support")}
             subtitle={t("profile.supportSubtitle")}
             title={t("profile.support")}
-          />
-          <AccountMenuRow
-            icon={LogoutIcon}
-            isLast
-            subtitle={t("profile.logoutSubtitle")}
-            title={t("profile.logout")}
-            tone="danger"
           />
         </ProfileSection>
         <ThemedText

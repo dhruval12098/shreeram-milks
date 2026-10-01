@@ -61,7 +61,7 @@ export interface DeliveryCalendarEntry {
   timeSlot: string;
 }
 
-export type OrderStatus = "out-for-delivery" | "delivered";
+export type OrderStatus = "confirmed" | "out-for-delivery" | "delivered";
 
 export interface OrderItem {
   imageUrl: string | null;

@@ -5,11 +5,13 @@ import { ThemedText } from "../atoms/ThemedText";
 import { useTheme } from "../../theme";
 interface CheckoutFooterProps {
   amount: number;
+  disabled?: boolean;
   label: string;
   onPress: () => void;
 }
 export function CheckoutFooter({
   amount,
+  disabled,
   label,
   onPress,
 }: CheckoutFooterProps) {
@@ -39,7 +41,7 @@ export function CheckoutFooter({
           {t("checkout.footer.inclusive")}
         </ThemedText>
       </View>
-      <Button style={{ flex: 1 }} onPress={onPress}>
+      <Button style={{ flex: 1 }} disabled={disabled} onPress={onPress}>
         {label}
       </Button>
     </View>

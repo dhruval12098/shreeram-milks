@@ -6,7 +6,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppIcon } from "../src/components/atoms/AppIcon";
 import { Avatar } from "../src/components/atoms/Avatar";
-import { Button } from "../src/components/atoms/Button";
 import { ThemedText } from "../src/components/atoms/ThemedText";
 import { AccountMenuRow } from "../src/components/molecules/AccountMenuRow";
 import { SettingsToggleRow } from "../src/components/molecules/SettingsToggleRow";
@@ -14,14 +13,13 @@ import {
   AlertsIcon,
   BackIcon,
   CalendarIcon,
-  DownloadIcon,
   EditIcon,
   LanguageIcon,
   LockIcon,
-  LogoutIcon,
   ShieldIcon,
 } from "../src/icons/appIcons";
 import { useTheme } from "../src/theme";
+import { useAppStore } from "../src/store/useAppStore";
 
 function SettingsGroup({
   children,
@@ -36,7 +34,7 @@ function SettingsGroup({
       <ThemedText
         variant="bodySmall"
         weight="bold"
-        style={{ color: theme.colors.colorPrimary }}
+        style={{ color: theme.colors.colorTextPrimary }}
       >
         {title}
       </ThemedText>
@@ -57,6 +55,7 @@ function SettingsGroup({
 
 export default function SettingsScreen() {
   const theme = useTheme();
+  const profile = useAppStore((state) => state.profile);
   const { t } = useTranslation();
   const [dispatchAlerts, setDispatchAlerts] = useState(true);
   const [photoProof, setPhotoProof] = useState(true);
@@ -112,11 +111,7 @@ export default function SettingsScreen() {
             backgroundColor: theme.colors.colorSurface,
           }}
         >
-          <Avatar
-            imageUrl="https://images.unsplash.com/photo-1626193082710-a16206f819f2?auto=format&fit=crop&w=168&h=168&q=80"
-            initials="PS"
-            size="lg"
-          />
+          <Avatar initials={profile.fullName.slice(0, 2).toUpperCase()} size="lg" />
           <View style={{ flex: 1, gap: theme.spacing.xs }}>
             <View
               style={{
@@ -126,7 +121,7 @@ export default function SettingsScreen() {
               }}
             >
               <ThemedText variant="body" weight="bold">
-                {t("profile.customerName")}
+                {profile.fullName}
               </ThemedText>
               <View
                 style={{
@@ -190,12 +185,14 @@ export default function SettingsScreen() {
             subtitle={t("settings.doorbellSubtitle")}
             title={t("settings.doorbell")}
             trailing={t("settings.custom")}
+            onPress={() => router.push("/doorstep-instructions")}
           />
           <AccountMenuRow
             icon={CalendarIcon}
             isLast
             subtitle={t("settings.dropInstructionSubtitle")}
             title={t("settings.dropInstruction")}
+            onPress={() => router.push("/doorstep-instructions")}
           />
         </SettingsGroup>
         <SettingsGroup title={t("settings.accountSection")}>
@@ -233,9 +230,6 @@ export default function SettingsScreen() {
             </ThemedText>
           </View>
         </View>
-        <Button icon={LogoutIcon} variant="secondary">
-          {t("settings.logout")}
-        </Button>
         <ThemedText
           variant="caption"
           style={{

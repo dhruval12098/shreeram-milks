@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 
 import { ThemedText } from "../atoms/ThemedText";
@@ -9,7 +10,7 @@ interface SubscriptionScheduleConfiguratorProps {
   pricePerDelivery: number;
 }
 
-const labels = ["M", "T", "W", "T", "F", "S", "S"];
+const labels = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const daysByFrequency: Record<Exclude<Frequency, "custom">, number[]> = {
   daily: [0, 1, 2, 3, 4, 5, 6],
   alternate: [0, 2, 4, 6],
@@ -19,6 +20,7 @@ export function SubscriptionScheduleConfigurator({
   pricePerDelivery,
 }: SubscriptionScheduleConfiguratorProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [frequency, setFrequency] = useState<Frequency>("daily");
   const [customDays, setCustomDays] = useState<number[]>([0, 2, 4]);
   const activeDays =
@@ -42,15 +44,15 @@ export function SubscriptionScheduleConfigurator({
     <View style={{ gap: theme.spacing.md }}>
       <View style={{ gap: theme.spacing.sm }}>
         <ThemedText variant="bodySmall" weight="semibold">
-          Delivery Frequency
+          {t("productDetails.scheduleFrequency")}
         </ThemedText>
         <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
           {(
             [
-              { key: "daily", label: "✓ Daily" },
-              { key: "alternate", label: "Alternate Days" },
-              { key: "custom", label: "Custom Days" },
-            ] as { key: Frequency; label: string }[]
+              { key: "daily", labelKey: "productDetails.daily" },
+              { key: "alternate", labelKey: "productDetails.alternateDays" },
+              { key: "custom", labelKey: "productDetails.customDays" },
+            ] as { key: Frequency; labelKey: string }[]
           ).map((option) => {
             const selected = frequency === option.key;
             return (
@@ -66,12 +68,9 @@ export function SubscriptionScheduleConfigurator({
                   justifyContent: "center",
                   paddingHorizontal: theme.spacing.xs,
                   borderRadius: theme.radii.md,
-                  borderWidth: selected
-                    ? theme.borderWidths.none
-                    : theme.borderWidths.hairline,
-                  borderColor: theme.colors.colorBorder,
+                  borderWidth: theme.borderWidths.none,
                   backgroundColor: selected
-                    ? theme.colors.colorPrimary
+                    ? theme.colors.colorPrimaryTint
                     : theme.colors.colorSurface,
                 }}
               >
@@ -80,12 +79,12 @@ export function SubscriptionScheduleConfigurator({
                   weight="semibold"
                   style={{
                     color: selected
-                      ? theme.colors.colorTextInverse
+                      ? theme.colors.colorPrimary
                       : theme.colors.colorTextPrimary,
                     textAlign: "center",
                   }}
                 >
-                  {option.label}
+                  {option.key === "daily" ? `✓ ${t(option.labelKey)}` : t(option.labelKey)}
                 </ThemedText>
               </Pressable>
             );
@@ -101,22 +100,22 @@ export function SubscriptionScheduleConfigurator({
           }}
         >
           <ThemedText variant="bodySmall" weight="semibold">
-            Delivery Days
+            {t("productDetails.scheduleDays")}
           </ThemedText>
           <View
             style={{
               borderRadius: theme.radii.pill,
               paddingHorizontal: theme.spacing.sm,
               paddingVertical: theme.spacing.xs,
-              backgroundColor: theme.colors.colorPrimaryTint,
+              backgroundColor: theme.colors.colorSurfaceMuted,
             }}
           >
             <ThemedText
               variant="caption"
               weight="semibold"
-              style={{ color: theme.colors.colorPrimary }}
+              style={{ color: theme.colors.colorTextSecondary }}
             >
-              {deliveryCount} days a week
+              {t("productDetails.daysPerWeek", { count: deliveryCount })}
             </ThemedText>
           </View>
         </View>
@@ -137,11 +136,13 @@ export function SubscriptionScheduleConfigurator({
                   justifyContent: "center",
                   borderRadius: theme.radii.pill,
                   borderWidth: selected
-                    ? theme.borderWidths.none
+                    ? theme.borderWidths.medium
                     : theme.borderWidths.hairline,
-                  borderColor: theme.colors.colorBorder,
-                  backgroundColor: selected
+                  borderColor: selected
                     ? theme.colors.colorPrimary
+                    : theme.colors.colorBorder,
+                  backgroundColor: selected
+                    ? theme.colors.colorPrimaryTint
                     : theme.colors.colorSurface,
                 }}
               >
@@ -150,11 +151,11 @@ export function SubscriptionScheduleConfigurator({
                   weight="semibold"
                   style={{
                     color: selected
-                      ? theme.colors.colorTextInverse
+                      ? theme.colors.colorPrimary
                       : theme.colors.colorTextPrimary,
                   }}
                 >
-                  {label}
+                  {t(`calendar.${label}`)}
                 </ThemedText>
               </Pressable>
             );
@@ -175,22 +176,22 @@ export function SubscriptionScheduleConfigurator({
       >
         <View>
           <ThemedText
-            variant="caption"
+            variant="overline"
             weight="semibold"
             style={{ color: theme.colors.colorTextSecondary }}
           >
-            SELECTED DELIVERY SCHEDULE
+            {t("productDetails.selectedSchedule")}
           </ThemedText>
           <ThemedText
-            variant="bodySmall"
+            variant="caption"
             style={{ color: theme.colors.colorTextSecondary }}
           >
-            {deliveryCount} delivery days each week
+            {t("productDetails.deliveryDaysEachWeek", { count: deliveryCount })}
           </ThemedText>
         </View>
         <ThemedText variant="h2">
           ₹{weeklyTotal}
-          <ThemedText variant="caption"> / week</ThemedText>
+          <ThemedText variant="caption"> {t("productDetails.perWeek")}</ThemedText>
         </ThemedText>
       </View>
     </View>

@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppIcon } from "../src/components/atoms/AppIcon";
@@ -14,10 +15,17 @@ import { useTheme } from "../src/theme";
 import type { Product } from "../src/types/models";
 
 const categoryNames = ["All", "Raw Milk", "Bilona Ghee", "Pot Curd"] as const;
+const categoryLabelKeys: Record<(typeof categoryNames)[number], string> = {
+  All: "search.all",
+  "Raw Milk": "search.rawMilk",
+  "Bilona Ghee": "search.bilonaGhee",
+  "Pot Curd": "search.potCurd",
+};
 
 export default function SearchScreen() {
   const theme = useTheme();
-  const { data: products = [], isError, isLoading } = useProducts();
+  const { t } = useTranslation();
+  const { data: products = [], isError, isLoading, refetch } = useProducts();
   const addToCart = useAppStore((state) => state.addToCart);
   const cart = useAppStore((state) => state.cart);
   const [query, setQuery] = useState("");
@@ -77,16 +85,16 @@ export default function SearchScreen() {
               }}
             >
               <Pressable
-                accessibilityLabel="Back"
+                accessibilityLabel={t("search.back")}
                 onPress={() => router.back()}
               >
                 <AppIcon icon={BackIcon} accessibilityLabel="" />
               </Pressable>
               <ThemedText variant="h2" style={{ flex: 1 }}>
-                Explore
+                {t("search.title")}
               </ThemedText>
               <Pressable
-                accessibilityLabel="Cart"
+                accessibilityLabel={t("search.cart")}
                 onPress={() => router.push("/cart")}
               >
                 <AppIcon icon={CartIcon} accessibilityLabel="" />
@@ -96,7 +104,8 @@ export default function SearchScreen() {
               <AppInput
                 value={query}
                 onChangeText={setQuery}
-                placeholder="Search milk, bilona ghee, paneer…"
+                accessibilityLabel={t("search.placeholder")}
+                placeholder={t("search.placeholder")}
                 style={{ paddingLeft: theme.sizes.iconLg + theme.spacing.md }}
               />
               <View
@@ -140,7 +149,7 @@ export default function SearchScreen() {
                           : theme.colors.colorTextPrimary,
                     }}
                   >
-                    {name}
+                    {t(categoryLabelKeys[name])}
                   </ThemedText>
                 </Pressable>
               ))}
@@ -149,24 +158,26 @@ export default function SearchScreen() {
               style={{ flexDirection: "row", justifyContent: "space-between" }}
             >
               <ThemedText variant="bodySmall" weight="semibold">
-                Fresh Offerings
+                {t("search.offerings")}
               </ThemedText>
               <ThemedText
                 variant="caption"
                 style={{ color: theme.colors.colorTextSecondary }}
               >
-                Delivered cold by 6:00 AM tomorrow
+                {t("search.deliveryNote")}
               </ThemedText>
             </View>
           </View>
         }
         ListEmptyComponent={
           isLoading ? (
-            <StateMessage type="loading" title="Loading fresh products" />
+            <StateMessage type="loading" title={t("search.loading")} />
           ) : (
             <StateMessage
               type={isError ? "error" : "empty"}
-              title={isError ? "Could not load search" : "No products found"}
+              title={isError ? t("search.error") : t("search.empty")}
+              actionLabel={isError ? t("common.retry") : undefined}
+              onAction={isError ? () => refetch() : undefined}
             />
           )
         }

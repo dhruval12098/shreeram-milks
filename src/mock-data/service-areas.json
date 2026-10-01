@@ -1,4 +1,6 @@
 [
+  { "pincode": "415001", "locality": "Satara", "isServiceable": true },
+  { "pincode": "415110", "locality": "Karad Road", "isServiceable": false },
   { "pincode": "380001", "locality": "Ahmedabad", "isServiceable": true },
   { "pincode": "380015", "locality": "Vastrapur", "isServiceable": true }
 ]

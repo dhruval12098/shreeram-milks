@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -25,7 +26,8 @@ const categories = ["All", "Milk", "Curd", "Paneer", "Ghee", "Butter"] as const;
 
 export default function ProductsScreen() {
   const theme = useTheme();
-  const { data: products = [], isError, isLoading } = useProducts();
+  const { t } = useTranslation();
+  const { data: products = [], isError, isLoading, refetch } = useProducts();
   const [activeCategory, setActiveCategory] =
     useState<(typeof categories)[number]>("All");
   const cart = useAppStore((state) => state.cart);
@@ -77,10 +79,14 @@ export default function ProductsScreen() {
               borderRadius: theme.radii.pill,
               paddingHorizontal: theme.spacing.md,
               backgroundColor: selected
-                ? theme.colors.colorPrimary
+                ? theme.colors.colorPrimaryTint
                 : theme.colors.colorSurface,
-              borderWidth: selected ? 0 : theme.borderWidths.hairline,
-              borderColor: theme.colors.colorBorder,
+              borderWidth: selected
+                ? theme.borderWidths.medium
+                : theme.borderWidths.hairline,
+              borderColor: selected
+                ? theme.colors.colorPrimary
+                : theme.colors.colorBorder,
             }}
           >
             <ThemedText
@@ -88,11 +94,11 @@ export default function ProductsScreen() {
               weight={selected ? "semibold" : "regular"}
               style={{
                 color: selected
-                  ? theme.colors.colorTextInverse
+                  ? theme.colors.colorPrimary
                   : theme.colors.colorTextPrimary,
               }}
             >
-              {category}
+              {t(`home.categories.${category.toLowerCase()}`)}
             </ThemedText>
           </Pressable>
         );
@@ -118,7 +124,7 @@ export default function ProductsScreen() {
         >
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Back to home"
+            accessibilityLabel={t("products.back")}
             onPress={() => router.back()}
             hitSlop={theme.spacing.sm}
             style={{
@@ -131,7 +137,7 @@ export default function ProductsScreen() {
             <AppIcon icon={BackIcon} accessibilityLabel="" size="sm" />
           </Pressable>
           <ThemedText variant="body" weight="semibold">
-            All products
+            {t("products.title")}
           </ThemedText>
         </View>
         <View
@@ -153,12 +159,14 @@ export default function ProductsScreen() {
       <StatusBar barStyle="dark-content" />
       <View style={{ flex: 1, paddingHorizontal: theme.spacing.md }}>
         {isLoading ? (
-          <StateMessage type="loading" title="Loading fresh products" />
+          <StateMessage type="loading" title={t("products.loading")} />
         ) : isError ? (
           <StateMessage
             type="error"
-            title="Could not load products"
-            description="Please try again shortly."
+            title={t("products.error")}
+            description={t("products.errorDetail")}
+            actionLabel={t("common.retry")}
+            onAction={() => refetch()}
           />
         ) : (
           <FlatList
@@ -171,7 +179,7 @@ export default function ProductsScreen() {
             ListEmptyComponent={
               <StateMessage
                 type="empty"
-                title={`No ${activeCategory.toLowerCase()} products are available`}
+                title={t("products.empty", { category: t(`home.categories.${activeCategory.toLowerCase()}`) })}
               />
             }
             showsVerticalScrollIndicator={false}
@@ -187,11 +195,11 @@ export default function ProductsScreen() {
           if (key === "profile") router.push("/profile");
         }}
         items={[
-          { key: "home", label: "Home", icon: HomeIcon },
-          { key: "products", label: "Products", icon: ProductsIcon },
-          { key: "subscriptions", label: "Subscriptions", icon: CalendarIcon },
-          { key: "cart", label: "Cart", icon: CartIcon },
-          { key: "profile", label: "Profile", icon: ProfileIcon },
+          { key: "home", label: t("navigation.home"), icon: HomeIcon },
+          { key: "products", label: t("navigation.products"), icon: ProductsIcon },
+          { key: "subscriptions", label: t("navigation.subscriptions"), icon: CalendarIcon },
+          { key: "cart", label: t("navigation.cart"), icon: CartIcon },
+          { key: "profile", label: t("navigation.profile"), icon: ProfileIcon },
         ]}
       />
     </SafeAreaView>

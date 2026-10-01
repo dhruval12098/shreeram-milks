@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
-import { Animated, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, Keyboard, Platform, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 
 import { useTheme } from '../../theme';
 
@@ -10,6 +10,7 @@ import { useTheme } from '../../theme';
 export function useScrollResponsiveBottomAction() {
   const theme = useTheme();
   const [translateY] = useState(() => new Animated.Value(0));
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const lastOffset = useRef(0);
   const isVisible = useRef(true);
 
@@ -31,5 +32,12 @@ export function useScrollResponsiveBottomAction() {
     lastOffset.current = offset;
   }, [setVisible]);
 
-  return { bottomActionStyle: { transform: [{ translateY }] }, onScroll };
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const show = Keyboard.addListener('keyboardDidShow', ({ endCoordinates }) => setKeyboardHeight(endCoordinates.height));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
+
+  return { bottomActionStyle: { transform: [{ translateY }] }, bottomActionBottom: theme.spacing.sm - keyboardHeight, onScroll };
 }

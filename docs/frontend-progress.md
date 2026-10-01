@@ -18,8 +18,14 @@ Mark complete only after the relevant acceptance criteria in:
 docs/frontend/01-screen-completion.md
 docs/frontend/02-ui-refinement.md
 ```
-
 have been satisfied.
+
+Phase 1 intentionally uses mock services and local client state. A mock record
+or demo profile is not incomplete solely because it is not connected to a
+backend. Phase A checks cover frontend behavior using that mock/local data.
+Backend-dependent persistence, identity, payment processing, and live support
+belong to later API/integration work. Keep demo state coherent across screens
+and never present a mock action as a verified real-world transaction.
 
 ---
 
@@ -54,6 +60,27 @@ have been satisfied.
 - [x] Farm Visit implemented OR visible dead affordance removed
 - [x] Quality Reports decision confirmed
 - [x] Reports implemented OR visible dead affordance removed
+
+### Phase A — Verified Mock/Local Behavior Follow-ups
+
+- [x] Checkout selection survives review → payment → success (selected address
+      and slot are shown; checkout is blocked when no serviceable address exists)
+- [x] Calendar uses real date arithmetic for the visible month and maps mock
+      delivery records by full date, including month length and weekday offset
+- [x] Calendar skip/pause actions update shared mock/local delivery state
+- [x] Vacation date selection is based on current dates and a successful local
+      pause updates the selected mock subscriptions
+- [x] Help/support categories and FAQ entries show relevant content; unavailable
+      live chat/call actions are clearly described as unavailable
+- [x] Address validation rejects whitespace-only required fields; editing a
+      pincode recalculates serviceability
+- [x] Saved profile name is shared by Profile and Settings
+- [x] Doorstep save confirmation clears when the draft is changed
+- [x] Language preference persists locally across app restarts
+
+> These are frontend/local-state completion items, not requests for backend
+> wiring. A generated mock order ID is acceptable; it must be consistent across
+> success and tracking and must not imply a real processed payment.
 
 ---
 
