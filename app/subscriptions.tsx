@@ -115,21 +115,13 @@ const SubscriptionCard = memo(function SubscriptionCard({
               borderRadius: theme.radii.pill,
               paddingHorizontal: theme.spacing.sm,
               paddingVertical: theme.spacing.xs,
-              backgroundColor:
-                subscription.tagKey === "trial"
-                  ? theme.colors.colorSurfaceMuted
-                  : theme.colors.colorPrimaryTint,
+              backgroundColor: theme.colors.colorSurfaceMuted,
             }}
           >
             <ThemedText
               variant="caption"
               weight="semibold"
-              style={{
-                color:
-                  subscription.tagKey === "trial"
-                    ? theme.colors.colorTextSecondary
-                    : theme.colors.colorPrimary,
-              }}
+              style={{ color: theme.colors.colorTextSecondary }}
             >
               ● {tag}
             </ThemedText>
@@ -468,7 +460,9 @@ export default function SubscriptionsScreen() {
                       gap: theme.spacing.md,
                       padding: theme.spacing.md,
                       borderRadius: theme.radii.lg,
-                      backgroundColor: theme.colors.colorPrimary,
+                      borderWidth: theme.borderWidths.hairline,
+                      borderColor: theme.colors.colorBorder,
+                      backgroundColor: theme.colors.colorSurface,
                     }}
                   >
                     <View
@@ -478,13 +472,13 @@ export default function SubscriptionsScreen() {
                         alignItems: "center",
                         justifyContent: "center",
                         borderRadius: theme.radii.pill,
-                        backgroundColor: theme.colors.colorPrimaryPressed,
+                        backgroundColor: theme.colors.colorSurfaceMuted,
                       }}
                     >
                       <AppIcon
                         icon={CalendarIcon}
                         accessibilityLabel={t("subscriptions.pause")}
-                        tone="onPrimary"
+                        tone="secondary"
                         size="sm"
                       />
                     </View>
@@ -492,13 +486,13 @@ export default function SubscriptionsScreen() {
                       <ThemedText
                         variant="body"
                         weight="semibold"
-                        style={{ color: theme.colors.colorTextInverse }}
+                        style={{ color: theme.colors.colorTextPrimary }}
                       >
                         {t("subscriptions.awayTitle")}
                       </ThemedText>
                       <ThemedText
                         variant="caption"
-                        style={{ color: theme.colors.colorPrimaryTint }}
+                        style={{ color: theme.colors.colorTextSecondary }}
                       >
                         {t("subscriptions.awayDetail")}
                       </ThemedText>
@@ -508,10 +502,14 @@ export default function SubscriptionsScreen() {
                         borderRadius: theme.radii.pill,
                         paddingHorizontal: theme.spacing.md,
                         paddingVertical: theme.spacing.sm,
-                        backgroundColor: theme.colors.colorSurface,
+                        backgroundColor: theme.colors.colorSurfaceMuted,
                       }}
                     >
-                      <ThemedText variant="caption" weight="semibold">
+                      <ThemedText
+                        variant="caption"
+                        weight="semibold"
+                        style={{ color: theme.colors.colorTextSecondary }}
+                      >
                         {t("subscriptions.pause")}
                       </ThemedText>
                     </View>

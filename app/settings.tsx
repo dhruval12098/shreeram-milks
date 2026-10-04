@@ -32,9 +32,9 @@ function SettingsGroup({
   return (
     <View style={{ gap: theme.spacing.sm }}>
       <ThemedText
-        variant="bodySmall"
+        variant="caption"
         weight="bold"
-        style={{ color: theme.colors.colorTextPrimary }}
+        style={{ color: theme.colors.colorTextSecondary }}
       >
         {title}
       </ThemedText>
@@ -127,13 +127,13 @@ export default function SettingsScreen() {
                 style={{
                   paddingHorizontal: theme.spacing.xs,
                   borderRadius: theme.radii.pill,
-                  backgroundColor: theme.colors.colorPrimary,
+                  backgroundColor: theme.colors.colorSurfaceMuted,
                 }}
               >
                 <ThemedText
                   variant="caption"
                   weight="semibold"
-                  style={{ color: theme.colors.colorTextInverse }}
+                  style={{ color: theme.colors.colorTextSecondary }}
                 >
                   {t("settings.memberLabel")}
                 </ThemedText>
@@ -219,11 +219,12 @@ export default function SettingsScreen() {
         >
           <Avatar initials="R" size="lg" />
           <View style={{ flex: 1, gap: theme.spacing.xs }}>
-            <ThemedText variant="body" weight="semibold">
+            <ThemedText variant="body" weight="bold">
               {t("settings.recycleTitle")}
             </ThemedText>
             <ThemedText
               variant="bodySmall"
+              weight="regular"
               style={{ color: theme.colors.colorTextSecondary }}
             >
               {t("settings.recycleSubtitle")}

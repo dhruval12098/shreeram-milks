@@ -1,7 +1,7 @@
 import { primitives } from './primitives';
 
 export const semantic = {
-  colorNavigation: primitives.orange950,
+  colorNavigation: primitives.warm900,
   colorPrimary: primitives.orange900,
   colorPrimaryPressed: primitives.orange700,
   colorPrimaryTint: primitives.orange100,
@@ -23,8 +23,8 @@ export const semantic = {
   colorBorderError: primitives.red600,
   colorSurface: primitives.white,
   colorSurfaceMuted: primitives.neutral100,
-  colorSurfaceDisabled: primitives.neutral100,
-  colorBackground: primitives.neutral100,
+  colorSurfaceDisabled: primitives.neutral150,
+  colorBackground: primitives.neutral50,
   colorOverlay: primitives.black,
   colorTransparent: primitives.transparent,
 } as const;

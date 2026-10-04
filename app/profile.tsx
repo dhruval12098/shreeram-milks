@@ -127,13 +127,14 @@ export default function ProfileScreen() {
                 gap: theme.spacing.xs,
               }}
             >
-              <ThemedText variant="body" weight="bold">
+              <ThemedText variant="body" weight="bold" numberOfLines={2}>
                 {profile.fullName}
               </ThemedText>
               <Pressable accessibilityRole="button" accessibilityLabel={t("profile.editProfile")} hitSlop={theme.spacing.sm} onPress={() => router.push("/edit-profile")} style={{ width: theme.layout.touchTargetMin, height: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center" }}><AppIcon icon={EditIcon} accessibilityLabel="" size="sm" tone="secondary" /></Pressable>
             </View>
             <ThemedText
               variant="bodySmall"
+              weight="regular"
               style={{ color: theme.colors.colorTextSecondary }}
             >
               {profile.phone}
@@ -144,13 +145,13 @@ export default function ProfileScreen() {
               paddingHorizontal: theme.spacing.sm,
               paddingVertical: theme.spacing.xs,
               borderRadius: theme.radii.pill,
-              backgroundColor: theme.colors.colorPrimaryTint,
+              backgroundColor: theme.colors.colorSurfaceMuted,
             }}
           >
             <ThemedText
               variant="caption"
               weight="semibold"
-              style={{ color: theme.colors.colorPrimary }}
+              style={{ color: theme.colors.colorTextSecondary }}
             >
               {t("profile.member")}
             </ThemedText>

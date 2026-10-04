@@ -35,5 +35,218 @@ export default function CheckoutPaymentScreen() {
 
   if (cart.length > 0 && !validAddress) return <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.colorBackground, padding: theme.layout.screenHorizontalPadding, gap: theme.spacing.md }}><CheckoutProgress step={3} title={t("payment.title")} /><ThemedText variant="body">{t("checkout.review.noAddress")}</ThemedText><Button onPress={() => router.replace("/checkout-address")}>{t("checkout.address.title")}</Button></SafeAreaView>;
 
-  return <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}><StatusBar barStyle="dark-content" /><ScrollView contentContainerStyle={{ gap: theme.spacing.lg, padding: theme.layout.screenHorizontalPadding, paddingBottom: theme.spacing.xxl }}><CheckoutProgress step={3} title={t("payment.title")} />{cart.length === 0 ? emptyCart : <><View style={{ gap: theme.spacing.xs, borderRadius: theme.radii.lg, padding: theme.spacing.md, backgroundColor: theme.colors.colorSurface, ...theme.elevation.card }}><View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><ThemedText variant="overline" style={{ color: theme.colors.colorTextSecondary }}>{t("payment.amount")}</ThemedText><View style={{ flexDirection: "row", alignItems: "center", gap: theme.spacing.xs, borderRadius: theme.radii.pill, paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xs, backgroundColor: theme.colors.colorPrimaryTint }}><AppIcon icon={LockIcon} size="sm" accessibilityLabel="" tone="primary" /><ThemedText variant="badgeLabel" style={{ color: theme.colors.colorPrimary }}>{t("payment.preview")}</ThemedText></View></View><ThemedText variant="h1" style={{ color: theme.colors.colorPrimary }}>₹{total}</ThemedText><ThemedText variant="caption" style={{ color: theme.colors.colorTextSecondary }}>{t("payment.orderCount", { count: cart.length })}</ThemedText></View><View style={{ gap: theme.spacing.sm }}><View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><ThemedText variant="bodySmall" weight="semibold">{t("payment.methodTitle")}</ThemedText><ThemedText variant="overline" style={{ color: theme.colors.colorPrimary }}>{t("payment.preview")}</ThemedText></View>{methods.map((item) => { const selected = method === item.key; return <Pressable key={item.key} accessibilityRole="radio" accessibilityState={{ selected, disabled: item.disabled }} disabled={item.disabled} onPress={() => setMethod(item.key)} style={({ pressed }) => ({ minHeight: theme.layout.touchTargetMin + theme.spacing.sm, flexDirection: "row", alignItems: "center", gap: theme.spacing.sm, padding: theme.spacing.md, borderRadius: theme.radii.lg, borderWidth: selected ? theme.borderWidths.medium : theme.borderWidths.hairline, borderColor: selected ? theme.colors.colorPrimary : theme.colors.colorBorder, backgroundColor: selected ? theme.colors.colorPrimaryTint : theme.colors.colorSurface, opacity: item.disabled ? theme.opacity.disabled : pressed ? theme.opacity.subdued : theme.opacity.full })}><View style={{ width: theme.sizes.avatarSm, height: theme.sizes.avatarSm, borderRadius: theme.radii.md, alignItems: "center", justifyContent: "center", backgroundColor: selected ? theme.colors.colorPrimary : theme.colors.colorSurfaceMuted }}><AppIcon icon={item.key === "wallet" ? WalletIcon : LockIcon} size="sm" accessibilityLabel="" tone={selected ? "onPrimary" : "secondary"} /></View><View style={{ flex: 1, gap: theme.spacing.xs }}><ThemedText variant="bodySmall" weight="semibold">{item.title}</ThemedText><ThemedText variant="caption" style={{ color: theme.colors.colorTextSecondary }}>{item.detail}</ThemedText></View><View accessible={false} style={{ width: theme.spacing.md, height: theme.spacing.md, borderRadius: theme.radii.pill, borderWidth: theme.borderWidths.medium, borderColor: selected ? theme.colors.colorPrimary : theme.colors.colorBorder, backgroundColor: selected ? theme.colors.colorPrimary : theme.colors.colorSurface }} /></Pressable>; })}</View><View style={{ flexDirection: "row", alignItems: "center", gap: theme.spacing.sm, borderRadius: theme.radii.md, padding: theme.spacing.md, backgroundColor: theme.colors.colorSurfaceMuted }}><AppIcon icon={LockIcon} size="sm" accessibilityLabel="" tone="secondary" /><ThemedText variant="caption" style={{ flex: 1, color: theme.colors.colorTextSecondary }}>{t("payment.reassurance")}</ThemedText></View></>}</ScrollView>{cart.length > 0 ? <View style={[{ paddingHorizontal: theme.layout.screenHorizontalPadding, paddingTop: theme.spacing.sm, paddingBottom: theme.spacing.md, backgroundColor: theme.colors.colorSurface }, theme.elevation.card]}><Button loading={confirming} onPress={confirmPreview}>{t(confirming ? "payment.confirming" : "payment.continue")}</Button></View> : null}</SafeAreaView>;
+  return (
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}
+    >
+      <StatusBar barStyle="dark-content" />
+      <ScrollView
+        contentContainerStyle={{
+          gap: theme.spacing.lg,
+          padding: theme.layout.screenHorizontalPadding,
+          paddingBottom: theme.spacing.xxl,
+        }}
+      >
+        <CheckoutProgress step={3} title={t("payment.title")} />
+        {cart.length === 0 ? (
+          emptyCart
+        ) : (
+          <>
+            <View
+              style={{
+                gap: theme.spacing.xs,
+                borderRadius: theme.radii.lg,
+                padding: theme.spacing.md,
+                backgroundColor: theme.colors.colorSurface,
+                ...theme.elevation.card,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <ThemedText
+                  variant="overline"
+                  style={{ color: theme.colors.colorTextSecondary }}
+                >
+                  {t("payment.amount")}
+                </ThemedText>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: theme.spacing.xs,
+                    borderRadius: theme.radii.pill,
+                    paddingHorizontal: theme.spacing.sm,
+                    paddingVertical: theme.spacing.xs,
+                    backgroundColor: theme.colors.colorInfoTint,
+                  }}
+                >
+                  <AppIcon
+                    icon={LockIcon}
+                    size="sm"
+                    accessibilityLabel=""
+                    tone="secondary"
+                  />
+                  <ThemedText
+                    variant="badgeLabel"
+                    style={{ color: theme.colors.colorInfo }}
+                  >
+                    {t("payment.preview")}
+                  </ThemedText>
+                </View>
+              </View>
+              <ThemedText variant="h1">₹{total}</ThemedText>
+              <ThemedText
+                variant="caption"
+                style={{ color: theme.colors.colorTextSecondary }}
+              >
+                {t("payment.orderCount", { count: cart.length })}
+              </ThemedText>
+            </View>
+            <View style={{ gap: theme.spacing.sm }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <ThemedText variant="bodySmall" weight="semibold">
+                  {t("payment.methodTitle")}
+                </ThemedText>
+                <ThemedText
+                  variant="overline"
+                  style={{ color: theme.colors.colorInfo }}
+                >
+                  {t("payment.preview")}
+                </ThemedText>
+              </View>
+              {methods.map((item) => {
+                const selected = method === item.key;
+                return (
+                  <Pressable
+                    key={item.key}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected, disabled: item.disabled }}
+                    disabled={item.disabled}
+                    onPress={() => setMethod(item.key)}
+                    style={({ pressed }) => ({
+                      minHeight: theme.layout.touchTargetMin + theme.spacing.sm,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: theme.spacing.sm,
+                      padding: theme.spacing.md,
+                      borderRadius: theme.radii.lg,
+                      borderWidth: selected
+                        ? theme.borderWidths.medium
+                        : theme.borderWidths.hairline,
+                      borderColor: selected
+                        ? theme.colors.colorPrimary
+                        : theme.colors.colorBorder,
+                      backgroundColor: selected
+                        ? theme.colors.colorPrimaryTint
+                        : theme.colors.colorSurface,
+                      opacity: item.disabled
+                        ? theme.opacity.disabled
+                        : pressed
+                          ? theme.opacity.subdued
+                          : theme.opacity.full,
+                    })}
+                  >
+                    <View
+                      style={{
+                        width: theme.sizes.avatarSm,
+                        height: theme.sizes.avatarSm,
+                        borderRadius: theme.radii.md,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: theme.colors.colorSurfaceMuted,
+                      }}
+                    >
+                      <AppIcon
+                        icon={item.key === "wallet" ? WalletIcon : LockIcon}
+                        size="sm"
+                        accessibilityLabel=""
+                        tone="secondary"
+                      />
+                    </View>
+                    <View style={{ flex: 1, gap: theme.spacing.xs }}>
+                      <ThemedText variant="bodySmall" weight="semibold">
+                        {item.title}
+                      </ThemedText>
+                      <ThemedText
+                        variant="caption"
+                        style={{ color: theme.colors.colorTextSecondary }}
+                      >
+                        {item.detail}
+                      </ThemedText>
+                    </View>
+                    <View
+                      accessible={false}
+                      style={{
+                        width: theme.spacing.md,
+                        height: theme.spacing.md,
+                        borderRadius: theme.radii.pill,
+                        borderWidth: theme.borderWidths.medium,
+                        borderColor: selected
+                          ? theme.colors.colorPrimary
+                          : theme.colors.colorBorder,
+                        backgroundColor: selected
+                          ? theme.colors.colorPrimary
+                          : theme.colors.colorSurface,
+                      }}
+                    />
+                  </Pressable>
+                );
+              })}
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: theme.spacing.sm,
+                borderRadius: theme.radii.md,
+                padding: theme.spacing.md,
+                backgroundColor: theme.colors.colorSurfaceMuted,
+              }}
+            >
+              <AppIcon
+                icon={LockIcon}
+                size="sm"
+                accessibilityLabel=""
+                tone="secondary"
+              />
+              <ThemedText
+                variant="caption"
+                style={{ flex: 1, color: theme.colors.colorTextSecondary }}
+              >
+                {t("payment.reassurance")}
+              </ThemedText>
+            </View>
+          </>
+        )}
+      </ScrollView>
+      {cart.length > 0 ? (
+        <View
+          style={[
+            {
+              paddingHorizontal: theme.layout.screenHorizontalPadding,
+              paddingTop: theme.spacing.sm,
+              paddingBottom: theme.spacing.md,
+              backgroundColor: theme.colors.colorSurface,
+            },
+            theme.elevation.card,
+          ]}
+        >
+          <Button loading={confirming} onPress={confirmPreview}>
+            {t(confirming ? "payment.confirming" : "payment.continue")}
+          </Button>
+        </View>
+      ) : null}
+    </SafeAreaView>
+  );
 }

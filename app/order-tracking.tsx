@@ -8,6 +8,7 @@ import { AppIcon } from "../src/components/atoms/AppIcon";
 import { Button } from "../src/components/atoms/Button";
 import { ThemedText } from "../src/components/atoms/ThemedText";
 import { StateMessage } from "../src/components/organisms/StateMessage";
+import { OrderStatusBadge } from "../src/components/molecules/OrderStatusBadge";
 import {
   BackIcon,
   DownloadIcon,
@@ -24,6 +25,7 @@ export default function OrderTrackingScreen() {
   const { orderId } = useLocalSearchParams<{ orderId?: string }>();
   const id = Array.isArray(orderId) ? orderId[0] : orderId;
   const { data: order, isError, isLoading, refetch } = useOrder(id);
+  const completedSteps = order?.status === "delivered" ? 4 : order?.status === "out-for-delivery" ? 3 : 0;
   if (isLoading || isError || !order)
     return (
       <SafeAreaView
@@ -97,25 +99,9 @@ export default function OrderTrackingScreen() {
             style={{ flexDirection: "row", alignItems: "flex-start", gap: theme.spacing.md }}
           >
             <View>
-              <View
-                style={{
-                  alignSelf: "flex-start",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: theme.spacing.xs,
-                  paddingHorizontal: theme.spacing.sm,
-                  paddingVertical: theme.spacing.xs,
-                  borderRadius: theme.radii.pill,
-                  backgroundColor: order.status === "confirmed"
-                    ? theme.colors.colorSuccessTint
-                    : theme.colors.colorSurfaceMuted,
-                }}
-              >
-                <View style={{ width: theme.spacing.xs, height: theme.spacing.xs, borderRadius: theme.radii.pill, backgroundColor: order.status === "confirmed" ? theme.colors.colorSuccess : theme.colors.colorTextSecondary }} />
-                <ThemedText variant="caption" weight="semibold" style={{ color: order.status === "confirmed" ? theme.colors.colorSuccess : theme.colors.colorTextSecondary }}>
+              <OrderStatusBadge status={order.status}>
                   {t(order.status === "confirmed" ? "tracking.confirmedStatus" : "tracking.status")}
-                </ThemedText>
-              </View>
+              </OrderStatusBadge>
               <ThemedText variant="body" weight="bold" numberOfLines={2} style={{ flexShrink: 1 }}>
                 {t("tracking.arriving", { window: order.deliveryWindow })}
               </ThemedText>
@@ -148,7 +134,7 @@ export default function OrderTrackingScreen() {
                       justifyContent: "center",
                       borderRadius: theme.radii.pill,
                       backgroundColor:
-                        order.status !== "confirmed" && index < 3
+                        index < completedSteps
                           ? theme.colors.colorSuccess
                           : theme.colors.colorSurfaceMuted,
                     }}
@@ -157,12 +143,12 @@ export default function OrderTrackingScreen() {
                       icon={TruckIcon}
                       accessibilityLabel=""
                       size="sm"
-                      tone={order.status !== "confirmed" && index < 3 ? "onPrimary" : "disabled"}
+                      tone={index < completedSteps ? "onPrimary" : "disabled"}
                     />
                   </View>
                   <ThemedText
                     variant="caption"
-                    weight={index < 3 && order.status !== "confirmed" ? "semibold" : "regular"}
+                    weight={index < completedSteps ? "semibold" : "regular"}
                     style={{
                       color: theme.colors.colorTextSecondary,
                       flex: 1,

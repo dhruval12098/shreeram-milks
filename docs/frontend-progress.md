@@ -93,6 +93,7 @@ and never present a mock action as a verified real-world transaction.
 - [ ] Remove arithmetic font scaling hacks
 - [ ] Fix Product Details `10% OFF` / `MOST POPULAR` label sizing
 - [ ] Verify Gujarati typography and wrapping
+- [x] Differentiate Gujarati profile/settings row titles from supporting copy by weight and text color
 
 ## Bottom Navigation
 
@@ -102,6 +103,7 @@ and never present a mock action as a verified real-world transaction.
 - [ ] Verify badge position on Android/iOS
 - [ ] Refine active/inactive nav state
 - [ ] Add subtle nav interaction animation if appropriate
+- [x] Apply deep warm navigation anchor token with white icon/label contrast
 
 ## Interaction Feedback
 
@@ -130,16 +132,19 @@ and never present a mock action as a verified real-world transaction.
 
 ## Color / Hierarchy
 
-- [ ] Audit overuse of solid primary fill
-- [ ] Use primary tint for secondary selected states where appropriate
-- [ ] Verify primary/pressed/navigation brand colors
+- [x] Audit overuse of solid primary fill in the refined Home, Subscriptions, Payment, Profile, and Settings surfaces
+- [x] Use primary tint for secondary selected states where appropriate
+- [x] Verify primary/pressed/navigation brand colors at the source-token level
 - [ ] Resolve any unconfirmed warning/info colors before release
-- [ ] Verify surface/background hierarchy
+- [x] Implement warm background, white-card, muted-surface, and disabled-surface token hierarchy
+- [x] Apply semantic success/warning/info/danger roles to shared badges and order statuses
+- [ ] Verify surface/background hierarchy on-device
 - [ ] Reduce unnecessary borders
 - [ ] Verify radius semantics
 
 ## Layout Consistency
 
+- [x] Preserve screen structure while differentiating profile/settings title and supporting-copy hierarchy
 - [ ] Header heights consistent
 - [ ] Back button alignment consistent
 - [ ] Screen horizontal padding consistent

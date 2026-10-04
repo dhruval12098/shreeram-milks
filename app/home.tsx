@@ -78,10 +78,10 @@ export default function HomeScreen() {
             borderRadius: theme.radii.pill,
             paddingHorizontal: theme.spacing.md,
             backgroundColor: selected
-              ? theme.colors.colorPrimary
+              ? theme.colors.colorPrimaryTint
               : theme.colors.colorSurface,
-            borderWidth: selected ? 0 : theme.borderWidths.hairline,
-            borderColor: theme.colors.colorBorder,
+            borderWidth: selected ? theme.borderWidths.medium : theme.borderWidths.hairline,
+            borderColor: selected ? theme.colors.colorPrimary : theme.colors.colorBorder,
           }}
         >
           <ThemedText
@@ -89,7 +89,7 @@ export default function HomeScreen() {
             weight={selected ? "semibold" : "regular"}
             style={{
               color: selected
-                ? theme.colors.colorTextInverse
+                ? theme.colors.colorPrimary
                 : theme.colors.colorTextPrimary,
             }}
           >
@@ -231,50 +231,87 @@ export default function HomeScreen() {
       </ScrollView>
       <View
         style={{
-          flexDirection: "row",
-          alignItems: "center",
-          gap: theme.spacing.sm,
           borderRadius: theme.radii.lg,
-          padding: theme.spacing.md,
-          backgroundColor: theme.colors.colorSurface,
+          backgroundColor: theme.colors.colorSuccessTint,
+          ...theme.elevation.card,
         }}
       >
         <View
           style={{
-            width: theme.sizes.avatarMd,
-            height: theme.sizes.avatarMd,
+            position: "relative",
+            overflow: "hidden",
+            flexDirection: "row",
             alignItems: "center",
-            justifyContent: "center",
-            borderRadius: theme.radii.pill,
-            backgroundColor: theme.colors.colorPrimaryTint,
+            gap: theme.spacing.sm,
+            borderRadius: theme.radii.lg,
+            borderWidth: theme.borderWidths.hairline,
+            borderColor: theme.colors.colorSurface,
+            padding: theme.spacing.md,
+            backgroundColor: theme.colors.colorSuccessTint,
           }}
         >
-          <AppIcon
-            icon={CalendarIcon}
-            accessibilityLabel={t("home.nextDelivery")}
-            size="sm"
-            tone="primary"
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              top: -theme.spacing.sm,
+              left: theme.spacing.md,
+              width: "58%",
+              height: "58%",
+              borderRadius: theme.radii.pill,
+              backgroundColor: theme.colors.colorSurface,
+              opacity: theme.opacity.overlay,
+            }}
           />
-        </View>
-        <View style={{ flex: 1, gap: theme.spacing.xs }}>
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: theme.spacing.md,
+              right: theme.spacing.md,
+              height: theme.borderWidths.hairline,
+              backgroundColor: theme.colors.colorSurface,
+              opacity: theme.opacity.subdued,
+            }}
+          />
+          <View
+            style={{
+              width: theme.sizes.avatarMd,
+              height: theme.sizes.avatarMd,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: theme.radii.pill,
+              backgroundColor: theme.colors.colorSurface,
+            }}
+          >
+            <AppIcon
+              icon={CalendarIcon}
+              accessibilityLabel={t("home.nextDelivery")}
+              size="sm"
+              tone="success"
+            />
+          </View>
+          <View style={{ flex: 1, gap: theme.spacing.xs }}>
+            <ThemedText
+              variant="caption"
+              weight="semibold"
+              style={{ color: theme.colors.colorTextPrimary }}
+            >
+              {t("home.nextDeliveryTime")}
+            </ThemedText>
+            <ThemedText variant="bodySmall">
+              {t("home.nextDeliveryProduct")}
+            </ThemedText>
+          </View>
           <ThemedText
             variant="caption"
             weight="semibold"
-            style={{ color: theme.colors.colorPrimary }}
+            style={{ color: theme.colors.colorTextPrimary }}
           >
-            {t("home.nextDeliveryTime")}
-          </ThemedText>
-          <ThemedText variant="bodySmall">
-            {t("home.nextDeliveryProduct")}
+            {t("home.skipPause")}
           </ThemedText>
         </View>
-        <ThemedText
-          variant="caption"
-          weight="semibold"
-          style={{ color: theme.colors.colorTextSecondary }}
-        >
-          {t("home.skipPause")}
-        </ThemedText>
       </View>
       <View
         style={{

@@ -4,6 +4,7 @@ import { Pressable, View } from "react-native";
 
 import { AppIcon } from "../atoms/AppIcon";
 import { ThemedText } from "../atoms/ThemedText";
+import { OrderStatusBadge } from "./OrderStatusBadge";
 import { ForwardIcon, TruckIcon } from "../../icons/appIcons";
 import type { Order } from "../../types/models";
 import { useTheme } from "../../theme";
@@ -51,24 +52,9 @@ export function OrderSummaryCard({ onPress, order }: OrderSummaryCardProps) {
             • {order.placedAt}
           </ThemedText>
         </View>
-        <View
-          style={{
-            paddingHorizontal: theme.spacing.sm,
-            paddingVertical: theme.spacing.xs,
-            borderRadius: theme.radii.pill,
-            backgroundColor: active
-              ? theme.colors.colorPrimaryTint
-              : theme.colors.colorSurfaceMuted,
-          }}
-        >
-          <ThemedText
-            variant="caption"
-            weight="semibold"
-            style={{ color: theme.colors.colorPrimary }}
-          >
+        <OrderStatusBadge status={order.status}>
             {t(`orders.status.${order.status}`)}
-          </ThemedText>
-        </View>
+        </OrderStatusBadge>
       </View>
       <View
         style={{

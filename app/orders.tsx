@@ -102,12 +102,12 @@ export default function OrdersScreen() {
               style={{
                 padding: theme.spacing.sm,
                 borderRadius: theme.radii.md,
-                backgroundColor: theme.colors.colorPrimaryTint,
+                backgroundColor: theme.colors.colorInfoTint,
               }}
             >
               <ThemedText
                 variant="caption"
-                style={{ color: theme.colors.colorPrimary }}
+                style={{ color: theme.colors.colorInfo }}
               >
                 ● {t("orders.arrival")}
               </ThemedText>

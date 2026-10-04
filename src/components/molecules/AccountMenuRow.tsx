@@ -59,20 +59,22 @@ export function AccountMenuRow({
           <AppIcon
             icon={icon}
             accessibilityLabel=""
-            tone={isDanger ? "disabled" : "primary"}
+            tone={isDanger ? "danger" : "secondary"}
             size="sm"
           />
         </View>
         <View style={{ flex: 1, gap: theme.spacing.xs }}>
           <ThemedText
             variant="bodySmall"
-            weight="semibold"
+            weight="bold"
+            numberOfLines={2}
             style={{ color: isDanger ? theme.colors.colorDanger : undefined }}
           >
             {title}
           </ThemedText>
           <ThemedText
             variant="caption"
+            weight="regular"
             numberOfLines={2}
             style={{ color: theme.colors.colorTextSecondary }}
           >
@@ -86,7 +88,7 @@ export function AccountMenuRow({
             style={{
               color: isDanger
                 ? theme.colors.colorDanger
-                : theme.colors.colorTextPrimary,
+                : theme.colors.colorTextSecondary,
             }}
           >
             {trailing}
@@ -96,7 +98,7 @@ export function AccountMenuRow({
             icon={ForwardIcon}
             accessibilityLabel=""
             size="sm"
-            tone={isDanger ? "disabled" : "secondary"}
+            tone={isDanger ? "danger" : "secondary"}
           />
         )}
       </Pressable>
