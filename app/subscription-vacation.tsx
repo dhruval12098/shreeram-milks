@@ -2,7 +2,7 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, StatusBar, View } from "react-native";
+import { Pressable, ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppIcon } from "../src/components/atoms/AppIcon";
@@ -106,12 +106,14 @@ export default function SubscriptionVacationScreen() {
           }
           step={step}
         />
-        <View
-          style={{
-            flex: 1,
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{
             gap: theme.spacing.lg,
             padding: theme.layout.screenHorizontalPadding,
+            paddingBottom: theme.spacing.lg,
           }}
+          showsVerticalScrollIndicator={false}
         >
           <Progress step={step} />
           {step === "products" ? (
@@ -132,7 +134,7 @@ export default function SubscriptionVacationScreen() {
           {step === "success" ? (
             <SuccessState pauseDate={pauseDate} resumeDate={resumeDate} />
           ) : null}
-        </View>
+        </ScrollView>
         <View
           style={{
             paddingHorizontal: theme.layout.screenHorizontalPadding,

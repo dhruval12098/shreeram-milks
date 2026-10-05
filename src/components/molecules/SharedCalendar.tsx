@@ -77,9 +77,9 @@ export function SharedCalendar({
 }: SharedCalendarProps) {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
-  const gridWidth = useRef(0);
+  const [gridWidth, setGridWidth] = useState(0);
   const previousRange = useRef<RangeSnapshot>({ fromDate, toDate });
-  const rangeProgress = useRef(new Animated.Value(1)).current;
+  const [rangeProgress] = useState(() => new Animated.Value(1));
   const [rangeTransition, setRangeTransition] = useState<{
     from: RangeSnapshot;
     to: RangeSnapshot;
@@ -121,7 +121,7 @@ export function SharedCalendar({
     setRangeTransition({ from: previous, to: next });
     const animation = Animated.timing(rangeProgress, {
       toValue: 1,
-      duration: theme.motion.duration.fast,
+      duration: theme.motion.duration.normal,
       easing: Easing.bezier(...theme.motion.easing.standard),
       useNativeDriver: true,
     });
@@ -129,7 +129,7 @@ export function SharedCalendar({
       if (finished) setRangeTransition(null);
     });
     return () => animation.stop();
-  }, [fromDate, mode, rangeProgress, theme.motion.duration.fast, theme.motion.easing.standard, toDate]);
+  }, [fromDate, mode, rangeProgress, theme.motion.duration.normal, theme.motion.easing.standard, toDate]);
 
   const changeMonth = (delta: number) => {
     onMonthChange(new Date(year, monthIndex + delta, 1));
@@ -157,7 +157,7 @@ export function SharedCalendar({
         ))}
       </View>
       <View
-        onLayout={(event) => { gridWidth.current = event.nativeEvent.layout.width; }}
+        onLayout={(event) => setGridWidth(event.nativeEvent.layout.width)}
       >
         {weeks.map((week, weekIndex) => {
           const oldSegment = mode === "range" ? getRangeSegment(week, rangeTransition?.from ?? { fromDate, toDate }) : undefined;
@@ -185,18 +185,19 @@ export function SharedCalendar({
                   style={{
                     position: "absolute",
                     left: 0,
-                    top: 0,
+                    top: (theme.layout.touchTargetMin - theme.sizes.avatarSm) / 2,
                     width: "100%",
-                    height: "100%",
+                    height: theme.sizes.avatarSm,
+                    borderRadius: theme.radii.pill,
                     backgroundColor: theme.colors.colorPrimaryTint,
                     opacity: shouldAnimate
-                      ? rangeProgress.interpolate({ inputRange: [0, 1], outputRange: [oldWidth > 0 ? 1 : 0, newWidth > 0 ? 1 : 0] })
-                      : 1,
+                      ? rangeProgress.interpolate({ inputRange: [0, 1], outputRange: [oldWidth > 0 ? theme.opacity.subdued : 0, newWidth > 0 ? theme.opacity.subdued : 0] })
+                      : theme.opacity.subdued,
                     transform: [
                       {
                         translateX: Animated.multiply(
                           Animated.subtract(center, 0.5),
-                          gridWidth.current,
+                          gridWidth,
                         ),
                       },
                       { scaleX: width },
@@ -206,12 +207,21 @@ export function SharedCalendar({
               ) : null}
               {week.map((date, dayIndex) => {
                 const isEndpoint = mode === "range" && Boolean(date) && (date === fromDate || date === toDate);
+                const rangeStart = fromDate && toDate && fromDate <= toDate ? fromDate : toDate;
+                const rangeEnd = fromDate && toDate && fromDate <= toDate ? toDate : fromDate;
+                const isBetweenRange = Boolean(
+                  mode === "range" && date && rangeStart && rangeEnd &&
+                  date > rangeStart && date < rangeEnd,
+                );
                 const status = date ? dateStatuses?.[date] : undefined;
                 const isSelected = mode === "single" && Boolean(date) && date === selectedDate;
                 const isDisabled = Boolean(date && minDate && date < minDate);
                 const label = date
                   ? new Date(`${date}T12:00:00`).toLocaleDateString(i18n.language, { day: "numeric", month: "long", year: "numeric" })
                   : "";
+                const dateCircleSize = isEndpoint
+                  ? theme.sizes.avatarSm + theme.spacing.xs
+                  : theme.sizes.avatarSm;
                 return date ? (
                   <Pressable
                     key={date}
@@ -224,8 +234,8 @@ export function SharedCalendar({
                   >
                     <View
                       style={{
-                        width: theme.sizes.avatarSm,
-                        height: theme.sizes.avatarSm,
+                        width: dateCircleSize,
+                        height: dateCircleSize,
                         borderRadius: theme.radii.pill,
                         alignItems: "center",
                         justifyContent: "center",
@@ -235,6 +245,8 @@ export function SharedCalendar({
                           ? theme.colors.colorSurfaceDisabled
                           : isEndpoint
                             ? theme.colors.colorPrimary
+                            : isBetweenRange
+                              ? theme.colors.colorTransparent
                             : status?.color ?? theme.colors.colorSurface,
                       }}
                     >
