@@ -1,15 +1,17 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StatusBar, View } from 'react-native';
+import { StatusBar, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppInput } from '../src/components/atoms/AppInput';
 import { Button } from '../src/components/atoms/Button';
+import { IconButton } from '../src/components/atoms/IconButton';
 import { ThemedText } from '../src/components/atoms/ThemedText';
 import { KeyboardAwareBottomDrawer } from '../src/components/organisms/KeyboardAwareBottomDrawer';
 import { useTheme } from '../src/theme';
+import { BackIcon } from '../src/icons/appIcons';
 
 export default function SignInScreen() {
   const theme = useTheme();
@@ -24,7 +26,7 @@ export default function SignInScreen() {
         keyboardShouldPersistTaps="handled"
         mode="layout"
       >
-      <Pressable accessibilityRole="button" accessibilityLabel={t('commonActions.back')} onPress={() => router.back()} hitSlop={theme.spacing.sm}><ThemedText variant="h2">‹</ThemedText></Pressable>
+      <IconButton icon={BackIcon} label={t('commonActions.back')} onPress={() => router.back()} />
       <View style={{ flex: 1, paddingTop: theme.spacing.xl, gap: theme.spacing.xl }}>
         <View style={{ gap: theme.spacing.sm }}><ThemedText variant="caption" style={{ color: theme.colors.colorPrimary }}>{t('signIn.eyebrow')}</ThemedText><ThemedText variant="h1">{t('signIn.title')}</ThemedText><ThemedText variant="body" style={{ color: theme.colors.colorTextSecondary }}>{t('signIn.description')}</ThemedText></View>
         <View style={{ gap: theme.spacing.sm }}><ThemedText variant="bodySmall">{t('signIn.phone')}</ThemedText><View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: theme.borderWidths.hairline, borderColor: theme.colors.colorBorder, borderRadius: theme.radii.md, backgroundColor: theme.colors.colorSurface }}><ThemedText style={{ paddingLeft: theme.spacing.md, paddingRight: theme.spacing.sm }}>🇮🇳 +91</ThemedText><AppInput accessibilityLabel={t('signIn.phone')} keyboardType="phone-pad" maxLength={10} onChangeText={(value) => setPhone(value.replace(/\D/g, ''))} placeholder={t('signIn.phonePlaceholder')} style={{ flex: 1, borderWidth: 0 }} value={phone} /></View></View>

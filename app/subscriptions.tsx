@@ -365,7 +365,7 @@ export default function SubscriptionsScreen() {
   );
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: theme.colors.colorSurfaceMuted }}
+      style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}
     >
       <StatusBar barStyle="dark-content" />
       <View style={{ flex: 1 }}>

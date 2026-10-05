@@ -211,7 +211,7 @@ function Preference({
         alignItems: "center",
         justifyContent: "space-between",
         borderRadius: theme.radii.md,
-        backgroundColor: theme.colors.colorSurfaceMuted,
+        backgroundColor: theme.colors.colorSurfaceSecondary,
       }}
     >
       <ThemedText variant="bodySmall" style={{ flex: 1 }}>

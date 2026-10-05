@@ -29,14 +29,16 @@ values are the green, red, neutral, white, black, and transparent ramps.
 Components use `theme.colors`:
 
 - Primary: `colorPrimary`, `colorPrimaryPressed`, `colorPrimaryTint`
+- Selection: `colorSelected`, `colorSelectedTint`
 - Danger: `colorDanger`, `colorDangerPressed`, `colorDangerTint`
 - Warning: `colorWarning`, `colorWarningTint`
 - Info: `colorInfo`, `colorInfoTint`
 - Text: `colorTextPrimary`, `colorTextSecondary`, `colorTextDisabled`,
   `colorTextInverse`
 - Borders: `colorBorder`, `colorBorderFocus`, `colorBorderError`
-- Surfaces: `colorSurface`, `colorSurfaceMuted`, `colorSurfaceDisabled`,
-  `colorBackground`
+- Surfaces: `colorSurface`, `colorSurfaceSecondary`, `colorSurfaceMuted`,
+  `colorSurfaceSelected`, `colorSurfaceInformational`, `colorSurfaceHero`,
+  `colorSurfaceDisabled`, `colorBackground`
 - Overlay: `colorOverlay`, used with `theme.opacity.overlay`
 
 The application background is explicitly white through

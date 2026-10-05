@@ -4,14 +4,14 @@ import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AppIcon } from "../src/components/atoms/AppIcon";
 import { Avatar } from "../src/components/atoms/Avatar";
+import { AppIcon } from "../src/components/atoms/AppIcon";
 import { ThemedText } from "../src/components/atoms/ThemedText";
 import { AccountMenuRow } from "../src/components/molecules/AccountMenuRow";
 import { SettingsToggleRow } from "../src/components/molecules/SettingsToggleRow";
+import { ScreenHeader } from "../src/components/molecules/ScreenHeader";
 import {
   AlertsIcon,
-  BackIcon,
   CalendarIcon,
   EditIcon,
   LanguageIcon,
@@ -42,9 +42,8 @@ function SettingsGroup({
         style={{
           overflow: "hidden",
           borderRadius: theme.radii.lg,
-          borderWidth: theme.borderWidths.hairline,
-          borderColor: theme.colors.colorBorder,
           backgroundColor: theme.colors.colorSurface,
+          ...theme.elevation.sm,
         }}
       >
         {children}
@@ -66,30 +65,8 @@ export default function SettingsScreen() {
       style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}
     >
       <StatusBar barStyle="dark-content" />
-      <View
-        style={{
-          minHeight: theme.sizes.buttonHeight + theme.spacing.md,
-          paddingHorizontal: theme.layout.screenHorizontalPadding,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Pressable
-          accessibilityLabel={t("settings.back")}
-          hitSlop={theme.spacing.sm}
-          onPress={() => router.back()}
-          style={{
-            width: theme.layout.touchTargetMin,
-            height: theme.layout.touchTargetMin,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <AppIcon icon={BackIcon} accessibilityLabel="" />
-        </Pressable>
-        <ThemedText variant="h2">{t("settings.title")}</ThemedText>
-        <View style={{ width: theme.layout.touchTargetMin }} />
+      <View style={{ paddingHorizontal: theme.layout.screenHorizontalPadding, paddingVertical: theme.spacing.xs }}>
+        <ScreenHeader backLabel={t("settings.back")} title={t("settings.title")} />
       </View>
       <ScrollView
         contentContainerStyle={{
@@ -106,9 +83,8 @@ export default function SettingsScreen() {
             alignItems: "center",
             gap: theme.spacing.sm,
             borderRadius: theme.radii.lg,
-            borderWidth: theme.borderWidths.hairline,
-            borderColor: theme.colors.colorBorder,
             backgroundColor: theme.colors.colorSurface,
+            ...theme.elevation.sm,
           }}
         >
           <Avatar initials={profile.fullName.slice(0, 2).toUpperCase()} size="lg" />

@@ -110,7 +110,7 @@ export default function HelpSupportScreen() {
                 gap: theme.spacing.sm,
                 padding: theme.spacing.md,
                 borderRadius: theme.radii.lg,
-                backgroundColor: theme.colors.colorSurfaceMuted,
+                backgroundColor: theme.colors.colorSurfaceSecondary,
               }}
             >
               <ThemedText

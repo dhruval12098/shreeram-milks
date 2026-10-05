@@ -7,8 +7,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AppIcon } from "../src/components/atoms/AppIcon";
 import { ThemedText } from "../src/components/atoms/ThemedText";
 import { OrderSummaryCard } from "../src/components/molecules/OrderSummaryCard";
+import { ScreenHeader } from "../src/components/molecules/ScreenHeader";
 import { StateMessage } from "../src/components/organisms/StateMessage";
-import { BackIcon, SearchIcon } from "../src/icons/appIcons";
+import { SearchIcon } from "../src/icons/appIcons";
 import { useOrders } from "../src/hooks/useOrders";
 import { useTheme } from "../src/theme";
 
@@ -69,35 +70,15 @@ export default function OrdersScreen() {
         }}
         ListHeaderComponent={
           <View style={{ gap: theme.spacing.md }}>
-            <View
-              style={{
-                minHeight: theme.sizes.buttonHeight,
-                flexDirection: "row",
-                alignItems: "center",
-                gap: theme.spacing.sm,
-              }}
-            >
-              <Pressable
-                accessibilityLabel={t("orders.back")}
-                onPress={() => router.back()}
-                style={{
-                  width: theme.layout.touchTargetMin,
-                  height: theme.layout.touchTargetMin,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <AppIcon icon={BackIcon} accessibilityLabel="" />
-              </Pressable>
-              <ThemedText variant="h2" style={{ flex: 1 }}>
-                {t("orders.title")}
-              </ThemedText>
+            <ScreenHeader backLabel={t("orders.back")} title={t("orders.title")}
+              trailing={
               <AppIcon
                 icon={SearchIcon}
                 accessibilityLabel={t("orders.search")}
                 tone="secondary"
               />
-            </View>
+              }
+            />
             <View
               style={{
                 padding: theme.spacing.sm,

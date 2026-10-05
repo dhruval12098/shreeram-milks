@@ -9,6 +9,6 @@ export const componentSizes = {
   avatarMd: 40,
   avatarLg: 56,
   slotCardHeight: 72,
-  productCardImageSize: 96,
+  productCardImageSize: 120,
   quantityStepperHeight: 36,
 } as const;

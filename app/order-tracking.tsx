@@ -1,16 +1,16 @@
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { ScrollView, StatusBar, View, Pressable } from "react-native";
+import { ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AppIcon } from "../src/components/atoms/AppIcon";
 import { Button } from "../src/components/atoms/Button";
+import { AppIcon } from "../src/components/atoms/AppIcon";
 import { ThemedText } from "../src/components/atoms/ThemedText";
 import { StateMessage } from "../src/components/organisms/StateMessage";
 import { OrderStatusBadge } from "../src/components/molecules/OrderStatusBadge";
+import { ScreenHeader } from "../src/components/molecules/ScreenHeader";
 import {
-  BackIcon,
   DownloadIcon,
   LocationIcon,
   PhoneIcon,
@@ -45,38 +45,14 @@ export default function OrderTrackingScreen() {
     >
       <StatusBar barStyle="dark-content" />
       <View style={{ flex: 1 }}>
-      <View
-        style={{
-          minHeight: theme.sizes.buttonHeight,
-          flexDirection: "row",
-          alignItems: "center",
-          gap: theme.spacing.sm,
-          paddingHorizontal: theme.layout.screenHorizontalPadding,
-          backgroundColor: theme.colors.colorBackground,
-          zIndex: theme.zIndex.stickyHeader,
-        }}
-      >
-        <Pressable
-          accessibilityLabel={t("commonActions.back")}
-          onPress={() => {
+      <View style={{ paddingHorizontal: theme.layout.screenHorizontalPadding, backgroundColor: theme.colors.colorBackground, zIndex: theme.zIndex.stickyHeader }}>
+        <ScreenHeader backLabel={t("commonActions.back")} title={t("tracking.title", { number: order.id })} onBack={() => {
             if (router.canGoBack()) {
               router.back();
             } else {
               router.replace("/orders");
             }
-          }}
-          style={{
-            width: theme.layout.touchTargetMin,
-            height: theme.layout.touchTargetMin,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <AppIcon icon={BackIcon} accessibilityLabel="" />
-        </Pressable>
-        <ThemedText variant="body" weight="bold" numberOfLines={2} style={{ flex: 1 }}>
-          {t("tracking.title", { number: order.id })}
-        </ThemedText>
+          }} />
       </View>
       <ScrollView
         contentContainerStyle={{

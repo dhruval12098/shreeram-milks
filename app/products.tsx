@@ -1,17 +1,17 @@
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, Pressable, ScrollView, StatusBar, View } from "react-native";
+import { FlatList, ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AppIcon } from "../src/components/atoms/AppIcon";
+import { Chip } from "../src/components/atoms/Chip";
 import { ThemedText } from "../src/components/atoms/ThemedText";
+import { ScreenHeader } from "../src/components/molecules/ScreenHeader";
 import { BottomNavigation } from "../src/components/organisms/BottomNavigation";
 import { ProductCard } from "../src/components/organisms/ProductCard";
 import { StateMessage } from "../src/components/organisms/StateMessage";
 import { useProducts } from "../src/hooks/useProducts";
 import {
-  BackIcon,
   CartIcon,
   CalendarIcon,
   HomeIcon,
@@ -68,39 +68,13 @@ export default function ProductsScreen() {
       {categories.map((category) => {
         const selected = category === activeCategory;
         return (
-          <Pressable
+          <Chip
             key={category}
-            accessibilityRole="tab"
-            accessibilityState={{ selected }}
             onPress={() => setActiveCategory(category)}
-            style={{
-              minHeight: theme.layout.touchTargetMin,
-              justifyContent: "center",
-              borderRadius: theme.radii.pill,
-              paddingHorizontal: theme.spacing.md,
-              backgroundColor: selected
-                ? theme.colors.colorPrimaryTint
-                : theme.colors.colorSurface,
-              borderWidth: selected
-                ? theme.borderWidths.medium
-                : theme.borderWidths.hairline,
-              borderColor: selected
-                ? theme.colors.colorPrimary
-                : theme.colors.colorBorder,
-            }}
+            selected={selected}
           >
-            <ThemedText
-              variant="bodySmall"
-              weight={selected ? "semibold" : "regular"}
-              style={{
-                color: selected
-                  ? theme.colors.colorPrimary
-                  : theme.colors.colorTextPrimary,
-              }}
-            >
-              {t(`home.categories.${category.toLowerCase()}`)}
-            </ThemedText>
-          </Pressable>
+            {t(`home.categories.${category.toLowerCase()}`)}
+          </Chip>
         );
       })}
     </ScrollView>
@@ -114,47 +88,14 @@ export default function ProductsScreen() {
         paddingBottom: theme.spacing.md,
       }}
     >
-      <View style={{ gap: theme.spacing.md }}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: theme.spacing.sm,
-          }}
-        >
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t("products.back")}
-            onPress={() => router.back()}
-            hitSlop={theme.spacing.sm}
-            style={{
-              width: theme.sizes.iconMd,
-              height: theme.sizes.iconMd,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <AppIcon icon={BackIcon} accessibilityLabel="" size="sm" />
-          </Pressable>
-          <ThemedText variant="body" weight="semibold">
-            {t("products.title")}
-          </ThemedText>
-        </View>
-        <View
-          style={{
-            height: theme.borderWidths.hairline,
-            marginHorizontal: -theme.spacing.md,
-            backgroundColor: theme.colors.colorBorder,
-          }}
-        />
-      </View>
+      <ScreenHeader backLabel={t("products.back")} title={t("products.title")} />
       {categoryTabs}
     </View>
   );
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: theme.colors.colorSurfaceMuted }}
+      style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}
     >
       <StatusBar barStyle="dark-content" />
       <View style={{ flex: 1, paddingHorizontal: theme.spacing.md }}>

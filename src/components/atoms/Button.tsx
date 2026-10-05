@@ -36,7 +36,7 @@ export function Button({
   const [scale] = useState(() => new Animated.Value(1));
   const backgroundColor =
     variant === "secondary"
-      ? theme.colors.colorSurface
+      ? theme.colors.colorSurfaceMuted
       : variant === "danger"
         ? theme.colors.colorDanger
         : theme.colors.colorPrimary;
@@ -46,7 +46,9 @@ export function Button({
       : theme.colors.colorTextInverse;
 
   return (
-    <Animated.View style={{ alignSelf: "stretch", transform: [{ scale }] }}>
+    <Animated.View
+      style={[{ alignSelf: "stretch", transform: [{ scale }] }, style]}
+    >
       <Pressable
         {...props}
         accessibilityRole="button"
@@ -78,7 +80,7 @@ export function Button({
             flexDirection: "row",
             gap: theme.spacing.sm,
             paddingHorizontal: theme.spacing.lg,
-            borderRadius: theme.radii.lg,
+            borderRadius: theme.radii.md,
             backgroundColor,
             borderColor: theme.colors.colorBorder,
             borderWidth:

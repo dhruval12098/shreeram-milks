@@ -164,7 +164,7 @@ export default function CheckoutPaymentScreen() {
                         borderRadius: theme.radii.md,
                         alignItems: "center",
                         justifyContent: "center",
-                        backgroundColor: theme.colors.colorSurfaceMuted,
+                        backgroundColor: theme.colors.colorSurfaceSecondary,
                       }}
                     >
                       <AppIcon
@@ -211,7 +211,7 @@ export default function CheckoutPaymentScreen() {
                 gap: theme.spacing.sm,
                 borderRadius: theme.radii.md,
                 padding: theme.spacing.md,
-                backgroundColor: theme.colors.colorSurfaceMuted,
+                backgroundColor: theme.colors.colorSurfaceSecondary,
               }}
             >
               <AppIcon

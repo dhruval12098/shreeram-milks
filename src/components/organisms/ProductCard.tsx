@@ -52,9 +52,8 @@ export const ProductCard = memo(function ProductCard({
         style={{
           overflow: "hidden",
           borderRadius: theme.radii.lg,
-          borderWidth: theme.borderWidths.hairline,
-          borderColor: theme.colors.colorBorder,
           backgroundColor: theme.colors.colorSurface,
+          ...theme.elevation.card,
         }}
       >
         <Pressable

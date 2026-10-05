@@ -110,9 +110,8 @@ export default function ProfileScreen() {
             alignItems: "center",
             gap: theme.spacing.md,
             borderRadius: theme.radii.lg,
-            borderWidth: theme.borderWidths.hairline,
-            borderColor: theme.colors.colorBorder,
             backgroundColor: theme.colors.colorSurface,
+            ...theme.elevation.sm,
           }}
         >
           <Avatar

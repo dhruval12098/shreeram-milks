@@ -6,6 +6,7 @@ import { FlatList, Pressable, ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppIcon } from "../src/components/atoms/AppIcon";
+import { Chip } from "../src/components/atoms/Chip";
 import { ThemedText } from "../src/components/atoms/ThemedText";
 import { BottomNavigation } from "../src/components/organisms/BottomNavigation";
 import { ProductCard } from "../src/components/organisms/ProductCard";
@@ -68,34 +69,9 @@ export default function HomeScreen() {
     ({ item }: { item: (typeof categories)[number] }) => {
       const selected = item === activeCategory;
       return (
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityState={{ selected }}
-          onPress={() => setActiveCategory(item)}
-          style={{
-            minHeight: theme.layout.touchTargetMin,
-            justifyContent: "center",
-            borderRadius: theme.radii.pill,
-            paddingHorizontal: theme.spacing.md,
-            backgroundColor: selected
-              ? theme.colors.colorPrimaryTint
-              : theme.colors.colorSurface,
-            borderWidth: selected ? theme.borderWidths.medium : theme.borderWidths.hairline,
-            borderColor: selected ? theme.colors.colorPrimary : theme.colors.colorBorder,
-          }}
-        >
-          <ThemedText
-            variant="bodySmall"
-            weight={selected ? "semibold" : "regular"}
-            style={{
-              color: selected
-                ? theme.colors.colorPrimary
-                : theme.colors.colorTextPrimary,
-            }}
-          >
-            {t(`home.categories.${item.toLowerCase()}`)}
-          </ThemedText>
-        </Pressable>
+        <Chip onPress={() => setActiveCategory(item)} selected={selected}>
+          {t(`home.categories.${item.toLowerCase()}`)}
+        </Chip>
       );
     },
     [activeCategory, t, theme],
@@ -340,7 +316,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: theme.colors.colorSurfaceMuted }}
+      style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}
     >
       <StatusBar barStyle="dark-content" />
       <View style={{ flex: 1, paddingHorizontal: theme.spacing.md }}>

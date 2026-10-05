@@ -42,11 +42,11 @@ export function DeliverySlotCard({
             ? theme.borderWidths.medium
             : theme.borderWidths.hairline,
           borderColor: selected
-            ? theme.colors.colorPrimary
+            ? theme.colors.colorSelected
             : theme.colors.colorBorder,
           padding: theme.spacing.md,
           backgroundColor: selected
-            ? theme.colors.colorPrimaryTint
+            ? theme.colors.colorSurfaceSelected
             : theme.colors.colorSurface,
           opacity: pressed ? theme.opacity.subdued : theme.opacity.full,
         })}
@@ -83,10 +83,10 @@ export function DeliverySlotCard({
               borderRadius: theme.radii.pill,
               borderWidth: theme.borderWidths.medium,
               borderColor: selected
-                ? theme.colors.colorPrimary
+                ? theme.colors.colorSelected
                 : theme.colors.colorBorder,
               backgroundColor: selected
-                ? theme.colors.colorPrimary
+                ? theme.colors.colorSelected
                 : theme.colors.colorSurface,
             }}
           />

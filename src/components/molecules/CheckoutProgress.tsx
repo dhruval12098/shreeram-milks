@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { Pressable, View } from "react-native";
-import { AppIcon } from "../atoms/AppIcon";
+import { View } from "react-native";
+import { IconButton } from "../atoms/IconButton";
 import { ThemedText } from "../atoms/ThemedText";
 import { BackIcon } from "../../icons/appIcons";
 import { useTheme } from "../../theme";
@@ -28,20 +28,14 @@ export function CheckoutProgress({ step, title }: CheckoutProgressProps) {
           justifyContent: "center",
         }}
       >
-        <Pressable
-          accessibilityLabel={t("commonActions.back")}
-          onPress={() => router.back()}
+        <View
           style={{
             position: "absolute",
             left: theme.spacing.none,
-            width: theme.layout.touchTargetMin,
-            height: theme.layout.touchTargetMin,
-            alignItems: "center",
-            justifyContent: "center",
           }}
         >
-          <AppIcon icon={BackIcon} accessibilityLabel="" />
-        </Pressable>
+          <IconButton icon={BackIcon} label={t("commonActions.back")} onPress={() => router.back()} />
+        </View>
         <ThemedText variant="body" weight="bold">
           {title}
         </ThemedText>

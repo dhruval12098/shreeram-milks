@@ -4,11 +4,13 @@ import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../src/components/atoms/Button";
+import { AppIcon } from "../src/components/atoms/AppIcon";
+import { IconButton } from "../src/components/atoms/IconButton";
 import { ThemedText } from "../src/components/atoms/ThemedText";
 import { ScreenHeader } from "../src/components/molecules/ScreenHeader";
 import { StateMessage } from "../src/components/organisms/StateMessage";
 import { useDeliveryCalendar } from "../src/hooks/useDeliveryCalendar";
-import { CalendarIcon } from "../src/icons/appIcons";
+import { BackIcon, CalendarIcon, ForwardIcon } from "../src/icons/appIcons";
 import { useAppStore } from "../src/store/useAppStore";
 import { useTheme } from "../src/theme";
 import type { DeliveryState } from "../src/types/models";
@@ -51,9 +53,9 @@ export default function DeliveryCalendarScreen() {
         <ThemedText variant="bodySmall" style={{ color: theme.colors.colorTextSecondary }}>{t("calendar.subtitle")}</ThemedText>
         <View style={{ padding: theme.spacing.md, gap: theme.spacing.md, borderRadius: theme.radii.lg, backgroundColor: theme.colors.colorSurface }}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <Pressable accessibilityRole="button" accessibilityLabel={t("calendar.previous")} onPress={() => changeMonth(-1)} style={({ pressed }) => ({ width: theme.layout.touchTargetMin, height: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center", opacity: pressed ? theme.opacity.subdued : theme.opacity.full })}><ThemedText variant="h2">‹</ThemedText></Pressable>
+            <IconButton icon={BackIcon} label={t("calendar.previous")} onPress={() => changeMonth(-1)} />
             <ThemedText variant="body" weight="semibold">{monthName}</ThemedText>
-            <Pressable accessibilityRole="button" accessibilityLabel={t("calendar.next")} onPress={() => changeMonth(1)} style={({ pressed }) => ({ width: theme.layout.touchTargetMin, height: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center", opacity: pressed ? theme.opacity.subdued : theme.opacity.full })}><ThemedText variant="h2">›</ThemedText></Pressable>
+            <IconButton icon={ForwardIcon} label={t("calendar.next")} onPress={() => changeMonth(1)} />
           </View>
           <View style={{ flexDirection: "row" }}>{weekdays.map((day) => <ThemedText key={day} variant="caption" style={{ flex: 1, textAlign: "center", color: theme.colors.colorTextSecondary }}>{t(`calendar.${day}`)}</ThemedText>)}</View>
           <View style={{ flexDirection: "row", flexWrap: "wrap" }}>{dates.map((date, index) => date.day > 0 ? <Pressable key={date.day} accessibilityRole="button" accessibilityLabel={new Date(year, monthIndex, date.day).toLocaleDateString(i18n.language, { day: "numeric", month: "long", year: "numeric" })} accessibilityState={{ selected: date.day === selectedDay }} onPress={() => setSelectedDay(date.day)} style={({ pressed }) => ({ width: "14.285%", height: theme.layout.touchTargetMin, alignItems: "center", justifyContent: "center", opacity: pressed ? theme.opacity.subdued : theme.opacity.full })}><View style={{ width: theme.sizes.avatarSm, height: theme.sizes.avatarSm, borderRadius: theme.radii.pill, alignItems: "center", justifyContent: "center", borderWidth: date.day === selectedDay ? theme.borderWidths.medium : theme.borderWidths.none, borderColor: theme.colors.colorPrimary, backgroundColor: colorFor(date.state) }}><ThemedText variant="caption" weight="semibold" style={{ color: date.state ? theme.colors.colorTextInverse : theme.colors.colorTextPrimary }}>{date.day}</ThemedText></View></Pressable> : <View key={`blank-${index}`} style={{ width: "14.285%", height: theme.layout.touchTargetMin }} />)}</View>

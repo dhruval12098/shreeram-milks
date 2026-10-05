@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppIcon } from "../src/components/atoms/AppIcon";
 import { Button } from "../src/components/atoms/Button";
+import { IconButton } from "../src/components/atoms/IconButton";
 import { ThemedText } from "../src/components/atoms/ThemedText";
 import { NutritionAccordion } from "../src/components/molecules/NutritionAccordion";
 import {
@@ -89,24 +90,17 @@ export default function ProductDetailsScreen() {
               transition={theme.motion.duration.normal}
               style={{ width: "100%", height: "100%" }}
             />
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t("productDetails.back")}
-              onPress={() => router.back()}
+            <View
               style={{
                 position: "absolute",
                 top: theme.spacing.md,
                 left: theme.layout.screenHorizontalPadding,
-                width: theme.layout.touchTargetMin,
-                height: theme.layout.touchTargetMin,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: theme.radii.pill,
                 backgroundColor: theme.colors.colorSurface,
+                borderRadius: theme.radii.md,
               }}
             >
-              <AppIcon icon={BackIcon} accessibilityLabel="" size="md" />
-            </Pressable>
+              <IconButton icon={BackIcon} label={t("productDetails.back")} onPress={() => router.back()} />
+            </View>
           </View>
           <View
             style={{
@@ -241,6 +235,7 @@ export default function ProductDetailsScreen() {
         </ScrollView>
         <View
           style={{
+            flexDirection: "row",
             gap: theme.spacing.sm,
             paddingHorizontal: theme.layout.screenHorizontalPadding,
             paddingTop: theme.spacing.sm,
@@ -249,24 +244,20 @@ export default function ProductDetailsScreen() {
           }}
         >
           <Button
+            icon={CartIcon}
             variant="secondary"
-            style={{ width: "100%" }}
+            style={{ flex: 1 }}
             onPress={() => {
               addSelectedQuantity();
-              router.push("/cart");
-            }}
-          >
-            {t("productDetails.buyNow")}
-          </Button>
-          <Button
-            icon={CartIcon}
-            onPress={addSelectedQuantity}
-            style={{
-              width: "100%",
-              backgroundColor: theme.colors.colorPrimary,
             }}
           >
             {t("productDetails.addToCart")}
+          </Button>
+          <Button
+            style={{ flex: 1 }}
+            onPress={addSelectedQuantity}
+          >
+            {t("productDetails.buyNow")}
           </Button>
         </View>
       </View>

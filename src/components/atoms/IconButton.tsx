@@ -46,7 +46,7 @@ export function IconButton({
             height: theme.layout.touchTargetMin,
             alignItems: "center",
             justifyContent: "center",
-            borderRadius: theme.radii.pill,
+            borderRadius: theme.radii.md,
             backgroundColor: pressed
               ? theme.colors.colorPrimaryTint
               : theme.colors.colorTransparent,
