@@ -1,13 +1,14 @@
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Animated, Easing, Pressable, StatusBar, View } from "react-native";
+import { Pressable, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppIcon } from "../src/components/atoms/AppIcon";
 import { Button } from "../src/components/atoms/Button";
 import { ThemedText } from "../src/components/atoms/ThemedText";
+import { SharedCalendar } from "../src/components/molecules/SharedCalendar";
 import { BackIcon } from "../src/icons/appIcons";
 import { useTheme } from "../src/theme";
 import { useAppStore } from "../src/store/useAppStore";
@@ -39,20 +40,24 @@ const subscriptions = [
 
 const localDateKey = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-const calendarStart = new Date();
-calendarStart.setHours(12, 0, 0, 0);
-calendarStart.setDate(
-  calendarStart.getDate() - ((calendarStart.getDay() + 6) % 7),
-);
-const calendarWeeks = Array.from({ length: 3 }, (_, week) =>
-  Array.from({ length: 7 }, (_, day) => {
-    const date = new Date(calendarStart);
-    date.setDate(calendarStart.getDate() + week * 7 + day);
-    return localDateKey(date);
-  }),
-);
-
-const calendarDates = calendarWeeks.flat().filter((date) => date.length > 0);
+const addDays = (date: Date, days: number) => {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+};
+const daysBetween = (from: string, to: string) =>
+  Math.round(
+    (Date.UTC(
+      Number(to.slice(0, 4)),
+      Number(to.slice(5, 7)) - 1,
+      Number(to.slice(8, 10)),
+    ) -
+      Date.UTC(
+        Number(from.slice(0, 4)),
+        Number(from.slice(5, 7)) - 1,
+        Number(from.slice(8, 10)),
+      )) / 86_400_000,
+  );
 
 export default function SubscriptionVacationScreen() {
   const theme = useTheme();
@@ -63,15 +68,15 @@ export default function SubscriptionVacationScreen() {
     "buffalo-milk",
   ]);
   const [activeDateField, setActiveDateField] = useState<DateField>("pause");
-  const [pauseDate, setPauseDate] = useState(
-    calendarWeeks[0][Math.min(6, (new Date().getDay() + 6) % 7)],
-  );
-  const [resumeDate, setResumeDate] = useState(calendarWeeks[2][0]);
+  const initialDate = new Date();
+  initialDate.setHours(12, 0, 0, 0);
+  const initialWeekStart = addDays(initialDate, -((initialDate.getDay() + 6) % 7));
+  const [pauseDate, setPauseDate] = useState(localDateKey(initialDate));
+  const [resumeDate, setResumeDate] = useState(localDateKey(addDays(initialWeekStart, 14)));
   const setVacationPause = useAppStore((state) => state.setVacationPause);
   const setDeliveryState = useAppStore((state) => state.setDeliveryState);
   const { data: deliveries = [] } = useDeliveryCalendar();
-  const duration =
-    calendarDates.indexOf(resumeDate) - calendarDates.indexOf(pauseDate);
+  const duration = daysBetween(pauseDate, resumeDate);
 
   const toggleSubscription = (id: string) =>
     setSelectedIds((items) =>
@@ -82,11 +87,7 @@ export default function SubscriptionVacationScreen() {
     if (activeDateField === "pause") {
       setPauseDate(date);
       if (date >= resumeDate)
-        setResumeDate(
-          calendarDates[
-            Math.min(calendarDates.indexOf(date) + 1, calendarDates.length - 1)
-          ],
-        );
+        setResumeDate(localDateKey(addDays(new Date(`${date}T12:00:00`), 1)));
       setActiveDateField("resume");
     } else if (date > pauseDate) setResumeDate(date);
   };
@@ -357,17 +358,12 @@ function SelectDates({
   resumeDate: string;
 }) {
   const theme = useTheme();
-  const { t, i18n } = useTranslation();
-  const [selectionScale] = useState(() => new Animated.Value(1));
-  useEffect(() => {
-    selectionScale.setValue(theme.motion.pressScale.card);
-    Animated.timing(selectionScale, {
-      toValue: 1,
-      duration: theme.motion.duration.fast,
-      easing: Easing.bezier(...theme.motion.easing.decelerate),
-      useNativeDriver: true,
-    }).start();
-  }, [pauseDate, resumeDate, selectionScale, theme.motion.duration.fast, theme.motion.easing.decelerate, theme.motion.pressScale.card]);
+  const { t } = useTranslation();
+  const [visibleMonth, setVisibleMonth] = useState(() => {
+    const current = new Date(`${pauseDate}T12:00:00`);
+    return new Date(current.getFullYear(), current.getMonth(), 1);
+  });
+  const minDate = localDateKey(new Date());
   return (
     <>
       <View style={{ gap: theme.spacing.xs }}>
@@ -395,170 +391,19 @@ function SelectDates({
           onPress={() => onFieldChange("resume")}
         />
       </View>
-      <View
-        style={{
-          gap: theme.spacing.md,
-          padding: theme.spacing.md,
-          borderRadius: theme.radii.lg,
-          backgroundColor: theme.colors.colorSurface,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: theme.spacing.sm,
-            }}
-          >
-            <ThemedText variant="bodySmall" weight="semibold">
-              {new Date(`${calendarDates[0]}T12:00:00`).toLocaleDateString(
-                i18n.language,
-                { month: "long" },
-              )}{" "}
-              –{" "}
-              {new Date(
-                `${calendarDates[calendarDates.length - 1]}T12:00:00`,
-              ).toLocaleDateString(i18n.language, { month: "long" })}
-            </ThemedText>
-            <View
-              style={{
-                borderRadius: theme.radii.pill,
-                paddingHorizontal: theme.spacing.sm,
-                paddingVertical: theme.spacing.xs,
-                backgroundColor: theme.colors.colorSurfaceMuted,
-              }}
-            >
-              <ThemedText
-                variant="caption"
-                style={{ color: theme.colors.colorTextSecondary }}
-              >
-                {new Date(`${calendarDates[0]}T12:00:00`).getFullYear()}
-              </ThemedText>
-            </View>
-          </View>
-        </View>
-        <View style={{ flexDirection: "row" }}>
-          {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((day) => (
-            <View
-              key={day}
-              style={{
-                flex: 1,
-                alignItems: "center",
-                paddingBottom: theme.spacing.xs,
-              }}
-            >
-              <ThemedText
-                variant="caption"
-                weight="semibold"
-                style={{ color: theme.colors.colorTextSecondary }}
-              >
-                {t(`calendar.${day}`)}
-              </ThemedText>
-            </View>
-          ))}
-        </View>
-        <View>
-          {calendarWeeks.map((week, weekIndex) => (
-            <View key={weekIndex} style={{ flexDirection: "row" }}>
-              {week.map((date, dayIndex) => {
-                const pauseIndex = calendarDates.indexOf(pauseDate);
-                const resumeIndex = calendarDates.indexOf(resumeDate);
-                const dateIndex = calendarDates.indexOf(date);
-                const range =
-                  Boolean(date) &&
-                  dateIndex >= Math.min(pauseIndex, resumeIndex) &&
-                  dateIndex < Math.max(pauseIndex, resumeIndex);
-                const endpoint =
-                  date === pauseDate ||
-                  dateIndex === Math.max(pauseIndex, resumeIndex) - 1;
-                const isResume = date === resumeDate;
-                const isBeforePause =
-                  dateIndex < Math.min(pauseIndex, resumeIndex);
-                return (
-                  <Pressable
-                    key={`${weekIndex}-${dayIndex}`}
-                    disabled={date < localDateKey(new Date())}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: endpoint }}
-                    onPress={() => onDateSelect(date)}
-                    style={{
-                      flex: 1,
-                      height: theme.sizes.avatarSm,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor:
-                        range && !endpoint
-                          ? theme.colors.colorPrimaryTint
-                          : theme.colors.colorTransparent,
-                    }}
-                  >
-                    {date ? (
-                      <Animated.View
-                        style={{
-                          width: theme.sizes.avatarSm,
-                          height: theme.sizes.avatarSm,
-                          alignItems: "center",
-                          justifyContent: "center",
-                          borderRadius: theme.radii.pill,
-                          backgroundColor: endpoint
-                            ? theme.colors.colorPrimary
-                            : isResume
-                              ? theme.colors.colorSurfaceMuted
-                              : theme.colors.colorTransparent,
-                          transform: endpoint
-                            ? [{ scale: selectionScale }]
-                            : undefined,
-                        }}
-                      >
-                        <ThemedText
-                          variant="caption"
-                          weight={endpoint ? "semibold" : "regular"}
-                          style={{
-                            color: endpoint
-                              ? theme.colors.colorTextInverse
-                              : isBeforePause
-                                ? theme.colors.colorTextDisabled
-                                : theme.colors.colorTextPrimary,
-                          }}
-                        >
-                          {new Date(`${date}T12:00:00`).getDate()}
-                        </ThemedText>
-                      </Animated.View>
-                    ) : null}
-                  </Pressable>
-                );
-              })}
-            </View>
-          ))}
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            gap: theme.spacing.md,
-          }}
-        >
-          <ThemedText
-            variant="caption"
-            style={{ color: theme.colors.colorTextSecondary }}
-          >
-            ● {t("subscriptionVacation.vacationRange")}
-          </ThemedText>
-          <ThemedText
-            variant="caption"
-            style={{ color: theme.colors.colorTextSecondary }}
-          >
-            ● {t("subscriptionVacation.deliveriesResume", { date: resumeDate })}
-          </ThemedText>
-        </View>
-      </View>
+      <SharedCalendar
+        mode="range"
+        month={visibleMonth}
+        onMonthChange={setVisibleMonth}
+        fromDate={pauseDate}
+        toDate={resumeDate}
+        minDate={minDate}
+        onDateSelect={onDateSelect}
+        legend={[
+          { color: theme.colors.colorPrimaryTint, label: t("subscriptionVacation.vacationRange") },
+          { color: theme.colors.colorPrimary, label: t("subscriptionVacation.deliveriesResume", { date: resumeDate }) },
+        ]}
+      />
       <View
         style={{
           flexDirection: "row",
@@ -572,11 +417,7 @@ function SelectDates({
           {t("subscriptionVacation.totalDuration")}
         </ThemedText>
         <ThemedText variant="bodySmall" weight="semibold">
-          {t("subscriptionVacation.durationDays", {
-            count:
-              calendarDates.indexOf(resumeDate) -
-              calendarDates.indexOf(pauseDate),
-          })}
+          {t("subscriptionVacation.durationDays", { count: daysBetween(pauseDate, resumeDate) })}
         </ThemedText>
       </View>
       <InfoCard />
