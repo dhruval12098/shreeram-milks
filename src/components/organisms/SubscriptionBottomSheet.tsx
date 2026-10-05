@@ -1,10 +1,12 @@
 import type { PropsWithChildren } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Animated,
+  Easing,
   Modal,
   Pressable,
+  StyleSheet,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -28,32 +30,79 @@ export function SubscriptionBottomSheet({
   const { t } = useTranslation();
   const { height } = useWindowDimensions();
   const [translateY] = useState(() => new Animated.Value(height));
+  const [backdropOpacity] = useState(() => new Animated.Value(0));
   const [mounted, setMounted] = useState(visible);
-  const animateTo = (toValue: number, onComplete?: () => void) => Animated.spring(translateY, {
-    toValue,
-    damping: 24,
-    stiffness: 190,
-    mass: 0.9,
-    overshootClamping: true,
-    useNativeDriver: true,
-  }).start(({ finished }) => { if (finished) onComplete?.(); });
-
+  const opened = useRef(false);
   useEffect(() => {
     if (visible) {
+      if (opened.current) return;
+      opened.current = true;
       setMounted(true);
       translateY.setValue(height);
-      animateTo(0);
-    } else if (mounted) {
-      animateTo(height, () => setMounted(false));
+      backdropOpacity.setValue(0);
+      Animated.spring(translateY, {
+        toValue: 0,
+        ...theme.motion.spring.sheet,
+        useNativeDriver: true,
+      }).start();
+      Animated.timing(backdropOpacity, {
+        toValue: theme.motion.overlayOpacity,
+        duration: theme.motion.duration.overlay,
+        easing: Easing.bezier(...theme.motion.easing.decelerate),
+        useNativeDriver: true,
+      }).start();
+    } else if (opened.current) {
+      opened.current = false;
+      Animated.parallel([
+        Animated.spring(translateY, {
+          toValue: height,
+          ...theme.motion.spring.sheet,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: theme.motion.duration.overlay,
+          easing: Easing.bezier(...theme.motion.easing.accelerate),
+          useNativeDriver: true,
+        }),
+      ]).start(({ finished }) => {
+        if (finished) setMounted(false);
+      });
     }
   }, [
+    backdropOpacity,
     height,
-    mounted,
+    theme.motion.duration.overlay,
+    theme.motion.easing.accelerate,
+    theme.motion.easing.decelerate,
+    theme.motion.overlayOpacity,
+    theme.motion.spring.sheet,
     translateY,
     visible,
   ]);
 
-  const close = () => animateTo(height, onClose);
+  const close = () => {
+    if (!opened.current) return;
+    opened.current = false;
+    Animated.parallel([
+      Animated.spring(translateY, {
+        toValue: height,
+        ...theme.motion.spring.sheet,
+        useNativeDriver: true,
+      }),
+      Animated.timing(backdropOpacity, {
+        toValue: 0,
+        duration: theme.motion.duration.overlay,
+        easing: Easing.bezier(...theme.motion.easing.accelerate),
+        useNativeDriver: true,
+      }),
+    ]).start(({ finished }) => {
+      if (finished) {
+        setMounted(false);
+        onClose();
+      }
+    });
+  };
   return (
     <Modal
       animationType="none"
@@ -62,15 +111,23 @@ export function SubscriptionBottomSheet({
       onRequestClose={close}
     >
       <View style={{ flex: 1, justifyContent: "flex-end" }}>
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: theme.colors.colorOverlay,
+              opacity: backdropOpacity,
+            },
+          ]}
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t("bottomSheet.closeDrawer")}
+          onPress={close}
+          style={StyleSheet.absoluteFill}
+        />
         <KeyboardAwareBottomDrawer>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t("bottomSheet.closeDrawer")}
-            onPress={close}
-            style={{
-              flex: 1,
-            }}
-          />
           <Animated.View
             style={[
               {

@@ -2,7 +2,7 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Animated, Pressable, StatusBar, View } from "react-native";
+import { Animated, Easing, Pressable, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppIcon } from "../src/components/atoms/AppIcon";
@@ -37,15 +37,20 @@ const subscriptions = [
   },
 ];
 
-const localDateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+const localDateKey = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 const calendarStart = new Date();
 calendarStart.setHours(12, 0, 0, 0);
-calendarStart.setDate(calendarStart.getDate() - ((calendarStart.getDay() + 6) % 7));
-const calendarWeeks = Array.from({ length: 3 }, (_, week) => Array.from({ length: 7 }, (_, day) => {
-  const date = new Date(calendarStart);
-  date.setDate(calendarStart.getDate() + week * 7 + day);
-  return localDateKey(date);
-}));
+calendarStart.setDate(
+  calendarStart.getDate() - ((calendarStart.getDay() + 6) % 7),
+);
+const calendarWeeks = Array.from({ length: 3 }, (_, week) =>
+  Array.from({ length: 7 }, (_, day) => {
+    const date = new Date(calendarStart);
+    date.setDate(calendarStart.getDate() + week * 7 + day);
+    return localDateKey(date);
+  }),
+);
 
 const calendarDates = calendarWeeks.flat().filter((date) => date.length > 0);
 
@@ -53,14 +58,20 @@ export default function SubscriptionVacationScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const [step, setStep] = useState<Step>("products");
-  const [selectedIds, setSelectedIds] = useState<string[]>(["a2-cow-milk", "buffalo-milk"]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([
+    "a2-cow-milk",
+    "buffalo-milk",
+  ]);
   const [activeDateField, setActiveDateField] = useState<DateField>("pause");
-  const [pauseDate, setPauseDate] = useState(calendarWeeks[0][Math.min(6, (new Date().getDay() + 6) % 7)]);
+  const [pauseDate, setPauseDate] = useState(
+    calendarWeeks[0][Math.min(6, (new Date().getDay() + 6) % 7)],
+  );
   const [resumeDate, setResumeDate] = useState(calendarWeeks[2][0]);
   const setVacationPause = useAppStore((state) => state.setVacationPause);
   const setDeliveryState = useAppStore((state) => state.setDeliveryState);
   const { data: deliveries = [] } = useDeliveryCalendar();
-  const duration = calendarDates.indexOf(resumeDate) - calendarDates.indexOf(pauseDate);
+  const duration =
+    calendarDates.indexOf(resumeDate) - calendarDates.indexOf(pauseDate);
 
   const toggleSubscription = (id: string) =>
     setSelectedIds((items) =>
@@ -70,7 +81,12 @@ export default function SubscriptionVacationScreen() {
     if (date < localDateKey(new Date())) return;
     if (activeDateField === "pause") {
       setPauseDate(date);
-      if (date >= resumeDate) setResumeDate(calendarDates[Math.min(calendarDates.indexOf(date) + 1, calendarDates.length - 1)]);
+      if (date >= resumeDate)
+        setResumeDate(
+          calendarDates[
+            Math.min(calendarDates.indexOf(date) + 1, calendarDates.length - 1)
+          ],
+        );
       setActiveDateField("resume");
     } else if (date > pauseDate) setResumeDate(date);
   };
@@ -132,7 +148,27 @@ export default function SubscriptionVacationScreen() {
             </Button>
           ) : null}
           {step === "dates" ? (
-            <Button disabled={duration <= 0} onPress={() => { setVacationPause({ subscriptionIds: selectedIds, from: pauseDate, resumeOn: resumeDate }); if (selectedIds.includes("a2-cow-milk")) deliveries.filter((delivery) => delivery.date >= pauseDate && delivery.date < resumeDate).forEach((delivery) => setDeliveryState(delivery.id, "paused")); setStep("success"); }}>
+            <Button
+              disabled={duration <= 0}
+              onPress={() => {
+                setVacationPause({
+                  subscriptionIds: selectedIds,
+                  from: pauseDate,
+                  resumeOn: resumeDate,
+                });
+                if (selectedIds.includes("a2-cow-milk"))
+                  deliveries
+                    .filter(
+                      (delivery) =>
+                        delivery.date >= pauseDate &&
+                        delivery.date < resumeDate,
+                    )
+                    .forEach((delivery) =>
+                      setDeliveryState(delivery.id, "paused"),
+                    );
+                setStep("success");
+              }}
+            >
               {t("subscriptionVacation.confirmDays", { count: duration })}
             </Button>
           ) : null}
@@ -170,7 +206,9 @@ function Header({ onBack, step }: { onBack: () => void; step: Step }) {
         <AppIcon icon={BackIcon} accessibilityLabel="" size="md" />
       </Pressable>
       <ThemedText variant="body" weight="semibold">
-        {step === "success" ? t("subscriptionVacation.confirmedTitle") : t("subscriptionVacation.title")}
+        {step === "success"
+          ? t("subscriptionVacation.confirmedTitle")
+          : t("subscriptionVacation.title")}
       </ThemedText>
       <ThemedText variant="body">?</ThemedText>
     </View>
@@ -267,7 +305,9 @@ function SelectProducts({
             </View>
             <Pressable
               accessibilityRole="switch"
-              accessibilityLabel={t("subscriptionVacation.pauseProduct", { product: t(`subscriptionVacation.${subscription.nameKey}`) })}
+              accessibilityLabel={t("subscriptionVacation.pauseProduct", {
+                product: t(`subscriptionVacation.${subscription.nameKey}`),
+              })}
               accessibilityState={{
                 checked: selectedIds.includes(subscription.id),
               }}
@@ -320,9 +360,14 @@ function SelectDates({
   const { t, i18n } = useTranslation();
   const [selectionScale] = useState(() => new Animated.Value(1));
   useEffect(() => {
-    selectionScale.setValue(0.86);
-    Animated.spring(selectionScale, { toValue: 1, damping: 16, stiffness: 260, mass: 0.7, useNativeDriver: true }).start();
-  }, [pauseDate, resumeDate, selectionScale]);
+    selectionScale.setValue(theme.motion.pressScale.card);
+    Animated.timing(selectionScale, {
+      toValue: 1,
+      duration: theme.motion.duration.fast,
+      easing: Easing.bezier(...theme.motion.easing.decelerate),
+      useNativeDriver: true,
+    }).start();
+  }, [pauseDate, resumeDate, selectionScale, theme.motion.duration.fast, theme.motion.easing.decelerate, theme.motion.pressScale.card]);
   return (
     <>
       <View style={{ gap: theme.spacing.xs }}>
@@ -373,7 +418,14 @@ function SelectDates({
             }}
           >
             <ThemedText variant="bodySmall" weight="semibold">
-              {new Date(`${calendarDates[0]}T12:00:00`).toLocaleDateString(i18n.language, { month: "long" })} – {new Date(`${calendarDates[calendarDates.length - 1]}T12:00:00`).toLocaleDateString(i18n.language, { month: "long" })}
+              {new Date(`${calendarDates[0]}T12:00:00`).toLocaleDateString(
+                i18n.language,
+                { month: "long" },
+              )}{" "}
+              –{" "}
+              {new Date(
+                `${calendarDates[calendarDates.length - 1]}T12:00:00`,
+              ).toLocaleDateString(i18n.language, { month: "long" })}
             </ThemedText>
             <View
               style={{
@@ -441,9 +493,10 @@ function SelectDates({
                       height: theme.sizes.avatarSm,
                       alignItems: "center",
                       justifyContent: "center",
-                      backgroundColor: range && !endpoint
-                        ? theme.colors.colorPrimaryTint
-                        : theme.colors.colorTransparent,
+                      backgroundColor:
+                        range && !endpoint
+                          ? theme.colors.colorPrimaryTint
+                          : theme.colors.colorTransparent,
                     }}
                   >
                     {date ? (
@@ -459,7 +512,9 @@ function SelectDates({
                             : isResume
                               ? theme.colors.colorSurfaceMuted
                               : theme.colors.colorTransparent,
-                          transform: endpoint ? [{ scale: selectionScale }] : undefined,
+                          transform: endpoint
+                            ? [{ scale: selectionScale }]
+                            : undefined,
                         }}
                       >
                         <ThemedText
@@ -471,7 +526,7 @@ function SelectDates({
                               : isBeforePause
                                 ? theme.colors.colorTextDisabled
                                 : theme.colors.colorTextPrimary,
-                        }}
+                          }}
                         >
                           {new Date(`${date}T12:00:00`).getDate()}
                         </ThemedText>
@@ -517,7 +572,11 @@ function SelectDates({
           {t("subscriptionVacation.totalDuration")}
         </ThemedText>
         <ThemedText variant="bodySmall" weight="semibold">
-          {t("subscriptionVacation.durationDays", { count: calendarDates.indexOf(resumeDate) - calendarDates.indexOf(pauseDate) })}
+          {t("subscriptionVacation.durationDays", {
+            count:
+              calendarDates.indexOf(resumeDate) -
+              calendarDates.indexOf(pauseDate),
+          })}
         </ThemedText>
       </View>
       <InfoCard />
@@ -565,13 +624,19 @@ function DateCard({
         {label}
       </ThemedText>
       <ThemedText variant="bodySmall" weight="semibold">
-        {new Date(`${value}T12:00:00`).toLocaleDateString(i18n.language, { day: "numeric", month: "short", year: "numeric" })}
+        {new Date(`${value}T12:00:00`).toLocaleDateString(i18n.language, {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })}
       </ThemedText>
       <ThemedText
         variant="caption"
         style={{ color: theme.colors.colorTextSecondary }}
       >
-        {active ? t("subscriptionVacation.selecting") : t("subscriptionVacation.tapEdit")}
+        {active
+          ? t("subscriptionVacation.selecting")
+          : t("subscriptionVacation.tapEdit")}
       </ThemedText>
     </Pressable>
   );
@@ -637,7 +702,9 @@ function SuccessState({
           ✓
         </ThemedText>
       </View>
-      <ThemedText variant="h2">{t("subscriptionVacation.successTitle")}</ThemedText>
+      <ThemedText variant="h2">
+        {t("subscriptionVacation.successTitle")}
+      </ThemedText>
       <ThemedText
         variant="bodySmall"
         style={{ color: theme.colors.colorTextSecondary, textAlign: "center" }}

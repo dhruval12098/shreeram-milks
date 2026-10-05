@@ -1,4 +1,5 @@
-import { Pressable, View } from "react-native";
+import { useState } from "react";
+import { Animated, Easing, Pressable, View } from "react-native";
 
 import { AppIcon, type IconSvgElement } from "../atoms/AppIcon";
 import { Divider } from "../atoms/Divider";
@@ -27,81 +28,93 @@ export function AccountMenuRow({
 }: AccountMenuRowProps) {
   const theme = useTheme();
   const isDanger = tone === "danger";
+  const [scale] = useState(() => new Animated.Value(1));
+  const animateScale = (toValue: number) =>
+    Animated.timing(scale, {
+      toValue,
+      duration: theme.motion.duration.fast,
+      easing: Easing.bezier(...theme.motion.easing.standard),
+      useNativeDriver: true,
+    }).start();
 
   return (
     <>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={title}
-        onPress={onPress}
-        style={({ pressed }) => ({
-          minHeight: theme.layout.touchTargetMin + theme.spacing.md,
-          paddingHorizontal: theme.spacing.md,
-          paddingVertical: theme.spacing.sm,
-          flexDirection: "row",
-          alignItems: "center",
-          gap: theme.spacing.sm,
-          opacity: pressed ? theme.opacity.subdued : theme.opacity.full,
-        })}
-      >
-        <View
-          style={{
-            width: theme.sizes.avatarMd,
-            height: theme.sizes.avatarMd,
+      <Animated.View style={{ transform: [{ scale }] }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={title}
+          onPress={onPress}
+          onPressIn={() => animateScale(theme.motion.pressScale.control)}
+          onPressOut={() => animateScale(1)}
+          style={({ pressed }) => ({
+            minHeight: theme.layout.touchTargetMin + theme.spacing.md,
+            paddingHorizontal: theme.spacing.md,
+            paddingVertical: theme.spacing.sm,
+            flexDirection: "row",
             alignItems: "center",
-            justifyContent: "center",
-            borderRadius: theme.radii.md,
-            backgroundColor: isDanger
-              ? theme.colors.colorDangerTint
-              : theme.colors.colorSurfaceMuted,
-          }}
+            gap: theme.spacing.sm,
+            opacity: pressed ? theme.opacity.subdued : theme.opacity.full,
+          })}
         >
-          <AppIcon
-            icon={icon}
-            accessibilityLabel=""
-            tone={isDanger ? "danger" : "secondary"}
-            size="sm"
-          />
-        </View>
-        <View style={{ flex: 1, gap: theme.spacing.xs }}>
-          <ThemedText
-            variant="bodySmall"
-            weight="bold"
-            numberOfLines={2}
-            style={{ color: isDanger ? theme.colors.colorDanger : undefined }}
-          >
-            {title}
-          </ThemedText>
-          <ThemedText
-            variant="caption"
-            weight="regular"
-            numberOfLines={2}
-            style={{ color: theme.colors.colorTextSecondary }}
-          >
-            {subtitle}
-          </ThemedText>
-        </View>
-        {trailing ? (
-          <ThemedText
-            variant="bodySmall"
-            weight="semibold"
+          <View
             style={{
-              color: isDanger
-                ? theme.colors.colorDanger
-                : theme.colors.colorTextSecondary,
+              width: theme.sizes.avatarMd,
+              height: theme.sizes.avatarMd,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: theme.radii.md,
+              backgroundColor: isDanger
+                ? theme.colors.colorDangerTint
+                : theme.colors.colorSurfaceMuted,
             }}
           >
-            {trailing}
-          </ThemedText>
-        ) : (
-          <AppIcon
-            icon={ForwardIcon}
-            accessibilityLabel=""
-            size="sm"
-            tone={isDanger ? "danger" : "secondary"}
-          />
-        )}
-      </Pressable>
+            <AppIcon
+              icon={icon}
+              accessibilityLabel=""
+              tone={isDanger ? "danger" : "secondary"}
+              size="sm"
+            />
+          </View>
+          <View style={{ flex: 1, gap: theme.spacing.xs }}>
+            <ThemedText
+              variant="bodySmall"
+              weight="bold"
+              numberOfLines={2}
+              style={{ color: isDanger ? theme.colors.colorDanger : undefined }}
+            >
+              {title}
+            </ThemedText>
+            <ThemedText
+              variant="caption"
+              weight="regular"
+              numberOfLines={2}
+              style={{ color: theme.colors.colorTextSecondary }}
+            >
+              {subtitle}
+            </ThemedText>
+          </View>
+          {trailing ? (
+            <ThemedText
+              variant="bodySmall"
+              weight="semibold"
+              style={{
+                color: isDanger
+                  ? theme.colors.colorDanger
+                  : theme.colors.colorTextSecondary,
+              }}
+            >
+              {trailing}
+            </ThemedText>
+          ) : (
+            <AppIcon
+              icon={ForwardIcon}
+              accessibilityLabel=""
+              size="sm"
+              tone={isDanger ? "danger" : "secondary"}
+            />
+          )}
+        </Pressable>
+      </Animated.View>
       {!isLast ? <Divider /> : null}
     </>
   );

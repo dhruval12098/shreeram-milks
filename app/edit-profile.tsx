@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ScrollView, StatusBar, View } from "react-native";
+import { StatusBar, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../src/components/atoms/Button";
 import { ThemedText } from "../src/components/atoms/ThemedText";
@@ -11,6 +12,98 @@ import { useAppStore } from "../src/store/useAppStore";
 import { useTheme } from "../src/theme";
 
 export default function EditProfileScreen() {
-  const theme = useTheme(); const { t } = useTranslation(); const profile = useAppStore((state) => state.profile); const setProfile = useAppStore((state) => state.setProfile); const [draft, setDraft] = useState(profile); const [saved, setSaved] = useState(false); const emailError = draft.email.length > 0 && !/^\S+@\S+\.\S+$/.test(draft.email);
-  return <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}><StatusBar barStyle="dark-content" /><View style={{ flex: 1, paddingHorizontal: theme.layout.screenHorizontalPadding }}><ScreenHeader backLabel={t("commonActions.back")} title={t("editProfile.title")} /><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: theme.spacing.md, paddingVertical: theme.spacing.md, paddingBottom: theme.spacing.xxl }}><View style={{ alignItems: "center", gap: theme.spacing.sm }}><Avatar initials={draft.fullName.slice(0, 2).toUpperCase()} size="lg" /></View><FormField label={t("editProfile.name")} value={draft.fullName} onChangeText={(fullName) => { setDraft({ ...draft, fullName }); setSaved(false); }} autoComplete="name" /><FormField label={t("editProfile.phone")} value={draft.phone} editable={false} keyboardType="phone-pad" /><ThemedText variant="caption" style={{ color: theme.colors.colorTextSecondary }}>{t("editProfile.phoneHint")}</ThemedText><FormField label={t("editProfile.email")} value={draft.email} onChangeText={(email) => { setDraft({ ...draft, email }); setSaved(false); }} error={emailError ? t("editProfile.invalidEmail") : undefined} keyboardType="email-address" autoCapitalize="none" autoComplete="email" /><Button disabled={emailError || !draft.fullName.trim()} onPress={() => { setProfile(draft); setSaved(true); }}>{t("editProfile.save")}</Button>{saved ? <ThemedText accessibilityLiveRegion="polite" variant="bodySmall" weight="semibold" style={{ color: theme.colors.colorPrimary, textAlign: "center" }}>{t("editProfile.saved")}</ThemedText> : null}</ScrollView></View></SafeAreaView>;
+  const theme = useTheme();
+  const { t } = useTranslation();
+  const profile = useAppStore((state) => state.profile);
+  const setProfile = useAppStore((state) => state.setProfile);
+  const [draft, setDraft] = useState(profile);
+  const [saved, setSaved] = useState(false);
+  const emailError =
+    draft.email.length > 0 && !/^\S+@\S+\.\S+$/.test(draft.email);
+  return (
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: theme.colors.colorBackground }}
+    >
+      <StatusBar barStyle="dark-content" />
+      <View
+        style={{
+          flex: 1,
+          paddingHorizontal: theme.layout.screenHorizontalPadding,
+        }}
+      >
+        <ScreenHeader
+          backLabel={t("commonActions.back")}
+          title={t("editProfile.title")}
+        />
+        <KeyboardAwareScrollView
+          mode="layout"
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            gap: theme.spacing.md,
+            paddingVertical: theme.spacing.md,
+            paddingBottom: theme.spacing.xxl,
+          }}
+        >
+          <View style={{ alignItems: "center", gap: theme.spacing.sm }}>
+            <Avatar
+              initials={draft.fullName.slice(0, 2).toUpperCase()}
+              size="lg"
+            />
+          </View>
+          <FormField
+            label={t("editProfile.name")}
+            value={draft.fullName}
+            onChangeText={(fullName) => {
+              setDraft({ ...draft, fullName });
+              setSaved(false);
+            }}
+            autoComplete="name"
+          />
+          <FormField
+            label={t("editProfile.phone")}
+            value={draft.phone}
+            editable={false}
+            keyboardType="phone-pad"
+          />
+          <ThemedText
+            variant="caption"
+            style={{ color: theme.colors.colorTextSecondary }}
+          >
+            {t("editProfile.phoneHint")}
+          </ThemedText>
+          <FormField
+            label={t("editProfile.email")}
+            value={draft.email}
+            onChangeText={(email) => {
+              setDraft({ ...draft, email });
+              setSaved(false);
+            }}
+            error={emailError ? t("editProfile.invalidEmail") : undefined}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+          />
+          <Button
+            disabled={emailError || !draft.fullName.trim()}
+            onPress={() => {
+              setProfile(draft);
+              setSaved(true);
+            }}
+          >
+            {t("editProfile.save")}
+          </Button>
+          {saved ? (
+            <ThemedText
+              accessibilityLiveRegion="polite"
+              variant="bodySmall"
+              weight="semibold"
+              style={{ color: theme.colors.colorPrimary, textAlign: "center" }}
+            >
+              {t("editProfile.saved")}
+            </ThemedText>
+          ) : null}
+        </KeyboardAwareScrollView>
+      </View>
+    </SafeAreaView>
+  );
 }

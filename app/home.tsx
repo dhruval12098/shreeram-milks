@@ -166,7 +166,7 @@ export default function HomeScreen() {
         <Image
           source={require("../assets/onboarding-milk-hero.png")}
           contentFit="cover"
-          transition={180}
+          transition={theme.motion.duration.normal}
           style={{ width: "100%", height: "100%" }}
         />
         <View

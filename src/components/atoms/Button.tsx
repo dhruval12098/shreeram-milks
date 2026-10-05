@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   Animated,
+  Easing,
   Pressable,
   type PressableProps,
   type StyleProp,
@@ -52,8 +53,9 @@ export function Button({
         disabled={isDisabled}
         onPressIn={(event) => {
           Animated.timing(scale, {
-            toValue: 0.98,
+            toValue: theme.motion.pressScale.control,
             duration: theme.motion.duration.fast,
+            easing: Easing.bezier(...theme.motion.easing.standard),
             useNativeDriver: true,
           }).start();
           props.onPressIn?.(event);
@@ -62,6 +64,7 @@ export function Button({
           Animated.timing(scale, {
             toValue: 1,
             duration: theme.motion.duration.fast,
+            easing: Easing.bezier(...theme.motion.easing.standard),
             useNativeDriver: true,
           }).start();
           props.onPressOut?.(event);

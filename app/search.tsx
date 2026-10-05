@@ -64,6 +64,9 @@ export default function SearchScreen() {
       <StatusBar barStyle="dark-content" />
       <FlatList
         data={results}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         numColumns={2}
